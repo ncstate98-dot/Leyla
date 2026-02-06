@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Valentine's Request</title>
     <style>
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #0b0b0b;
-            color: #00FF41; /* Matrix Green */
+            color: #00FF41;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,15 +20,18 @@
             text-align: center;
             box-sizing: border-box;
         }
-        h1 { font-size: 1.8rem; margin-bottom: 30px; }
+        h1 { font-size: 1.8rem; margin-bottom: 50px; }
+        
+        /* This container keeps buttons side-by-side initially */
         .btn-container { 
-            position: relative; 
-            width: 100%; 
-            height: 150px; 
-            display: flex; 
-            justify-content: center; 
+            display: flex;
+            gap: 20px;
+            justify-content: center;
             align-items: center;
+            width: 100%;
+            height: 100px;
         }
+
         button {
             padding: 15px 30px;
             font-size: 1.2rem;
@@ -36,27 +39,24 @@
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            touch-action: manipulation; /* Prevents zooming on mobile taps */
+            touch-action: none; /* Prevents default phone behavior */
         }
-        #yesBtn { background-color: #28a745; color: white; z-index: 10; }
+
+        #yesBtn { background-color: #28a745; color: white; position: relative; }
+        
         #noBtn {
             background-color: #dc3545;
             color: white;
-            position: absolute;
-            z-index: 20;
+            position: relative; /* Starts relative, then JS turns it absolute */
+            transition: 0.1s;
         }
+
         #message {
-            margin-top: 40px;
+            margin-top: 50px;
             font-size: 1rem;
             color: #00FF41;
             min-height: 3em;
             max-width: 90%;
-            font-style: italic;
-        }
-        .reset-note {
-            font-size: 0.8rem;
-            margin-top: 20px;
-            opacity: 0.7;
         }
     </style>
 </head>
@@ -66,7 +66,7 @@
 
     <div class="btn-container">
         <button id="yesBtn" onclick="sayYes()">Yes</button>
-        <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No</button>
+        <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
     </div>
 
     <div id="message"></div>
@@ -77,102 +77,54 @@
         const messageDiv = document.getElementById('message');
 
         const responses = [
-            "Hey, are you sure about this?", 
-            "You think you're funny?", 
-            "There is no spoon... and there is no 'No' button.",
-            "I'm trying to free your mind, Leyla.", 
-            "Choice is an illusion created between those with power and those without.",
-            "Fate, it seems, is not without a sense of irony.", 
-            "Not like this... not like this.",
-            "You take the blue pill, the story ends. You hit Yes, the story begins.",
-            "I can only show you the door, you're the one that has to click Yes.",
-            "Denial is the most predictable of all human responses.", 
-            "Mr. Anderson
-        }
-        #message {
-            margin-top: 50px;
-            font-size: 1.1rem;
-            color: #00FF41;
-            min-height: 1.5em;
-            max-width: 80%;
-        }
-    </style>
-</head>
-<body>
-
-    <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
-
-    <div class="btn-container">
-        <button id="yesBtn" onclick="sayYes()">Yes</button>
-        <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No</button>
-    </div>
-
-    <div id="message"></div>
-
-    <script>
-        let noCount = 0;
-        const noBtn = document.getElementById('noBtn');
-        const messageDiv = document.getElementById('message');
-        const question = document.getElementById('question');
-
-        const responses = [
-            "Hey, are you sure about this?", "You think you're funny?", "There is no spoon... and there is no 'No' button.",
-            "I'm trying to free your mind, Leyla.", "Choice is an illusion created between those with power and those without.",
-            "Fate, it seems, is not without a sense of irony.", "Not like this... not like this.",
-            "You take the blue pill, the story ends. You hit Yes, the story begins.",
-            "I can only show you the door, you're the one that has to click Yes.",
-            "Denial is the most predictable of all human responses.", "Mr. Anderson... I mean, Leyla... why do you persist?",
-            "Were you looking at the girl in the red dress? Or trying to hit No?",
-            "Everything that has a beginning has an end... except this loop.",
-            "You're beginning to believe!", "I know kung fu. And I know you want to say Yes.",
-            "It is the question that drives us, Leyla.", "The Matrix is everywhere. Even in this red button.",
-            "Buckle your seatbelt, Dorothy, 'cause Kansas is going bye-bye.",
-            "Dodging bullets is easy. Dodging this question? Harder.",
-            "What is 'Real'? If 'Real' is a Yes, then click it.",
-            "You’ve already made the choice. You’re here to understand why you made it.",
-            "Human beings are a disease... and a 'No' is the symptom.",
-            "Ignorance is bliss, but saying Yes is better.",
-            "I'm going to show you a world without rules... but with a Valentine.",
-            "Stop trying to hit me and hit me! (The Green one)",
-            "The answer is out there, Leyla. It's looking for you.",
-            "A déjà vu is usually a glitch in the Matrix. Like you trying to hit No.",
-            "Would you still have tried to hit No if I hadn't said anything?",
-            "You think that's air you're breathing now?", "I'm trying to help you, Leyla.",
-            "Your mind makes it real.", "The body cannot live without the 'Yes' button.",
-            "Is it tomorrow yet? Because you're still clicking No.", "Error 404: No not found.",
-            "You are the One. The one who should say Yes.", "Don't think you are, know you are... my Valentine.",
-            "Follow the white rabbit. (The white rabbit says click Yes)",
-            "This is your last chance. After this, there is no turning back.",
-            "I'm going to hang up this phone and show them a world where you said Yes.",
-            "You look a little bit like Trinity when you're stubborn.",
-            "Why, Leyla? Why? Why do you persist?", "Because I choose to... wait, no, YOU choose to say Yes.",
-            "There's a difference between knowing the path and walking the path.",
-            "You're faster than this! Oh wait, I'm faster.", "I'm the Architect of this page, and I say Yes.",
-            "To deny our own impulses is to deny the very thing that makes us human.",
-            "Goodbye, Mr. Anderson... Hello, Valentine.", "Sound of inevitability, Leyla.",
-            "The Oracle predicted you'd be difficult.", "Just click Yes. It's the only way out of the simulation."
+            "Hey, are you sure about this?", "You think you're funny?", "There is no spoon...",
+            "I'm trying to free your mind, Leyla.", "Choice is an illusion.",
+            "Fate, it seems, is not without a sense of irony.", "Not like this...",
+            "You take the blue pill, the story ends.", "I can only show you the door.",
+            "Denial is the most predictable response.", "Why do you persist?",
+            "Were you looking at the girl in the red dress?", "Everything has a beginning and an end.",
+            "You're beginning to believe!", "I know kung fu.", "It is the question that drives us.",
+            "The Matrix is everywhere.", "Buckle your seatbelt, Dorothy.",
+            "Dodging bullets is easy. Dodging this? Harder.", "What is 'Real'?",
+            "You’ve already made the choice.", "Human beings are a disease.",
+            "Ignorance is bliss.", "A world without rules.", "Stop trying to hit me and hit me!",
+            "The answer is out there, Leyla.", "A déjà vu is a glitch.",
+            "Would you still have tried to hit No?", "Is that air you're breathing?",
+            "Your mind makes it real.", "The body cannot live without the 'Yes'.",
+            "Error 404: No not found.", "You are the One.", "Don't think you are, know you are.",
+            "Follow the white rabbit.", "This is your last chance.",
+            "A world where you said Yes.", "You look like Trinity when you're stubborn.",
+            "Because I choose to!", "Walking the path vs knowing the path.",
+            "You're faster than this!", "I'm the Architect of this page.",
+            "To deny impulses is to deny being human.", "Goodbye, Mr. Anderson...",
+            "The sound of inevitability.", "The Oracle predicted this.", "Just click Yes."
         ];
 
         const yesMessages = [
             "YES! (Did you try the no button, just to see what happens?)",
-            "I knew it! (But seriously, did you see how fast that No button was?)",
-            "Excellent choice. (The simulation thanks you for your cooperation.)",
-            "Victory! (I saw you eyeing that red button, though...)",
-            "You chose the Red Pill! Wait, no, the Green Button. Same thing!",
-            "Welcome to the real world. (Try the No button if you think you're fast enough!)"
+            "I knew it! (Did you see how fast that No button was?)",
+            "Excellent choice.", "Victory!", "Welcome to the real world."
         ];
 
         function moveNo() {
             noCount++;
             
-            // Random position
-            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
-            
-            noBtn.style.left = `${x}px`;
-            noBtn.style.top = `${y}px`;
+            // On the very first attempt, we switch to absolute so it can jump anywhere
+            if (noBtn.style.position !== 'absolute') {
+                noBtn.style.position = 'absolute';
+            }
 
-            // Message logic
+            // Calculate random coordinates
+            // We subtract button size so it doesn't go off-screen
+            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+            
+            const newX = Math.floor(Math.random() * maxX);
+            const newY = Math.floor(Math.random() * maxY);
+            
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+
             if (noCount % 5 === 0) {
                 const randomIndex = Math.floor(Math.random() * responses.length);
                 messageDiv.innerText = responses[randomIndex];
@@ -181,7 +133,12 @@
 
         function sayYes() {
             const randomYes = yesMessages[Math.floor(Math.random() * yesMessages.length)];
-            document.body.innerHTML = `<h1>${randomYes}</h1><p style="font-size: 5rem;">❤️</p>`;
+            document.body.innerHTML = `
+                <h1 style="color: #00FF41;">${randomYes}</h1>
+                <p style="font-size: 5rem;">❤️</p>
+                <p style="color: #00FF41; opacity: 0.7;">(System rebooting in 5 seconds...)</p>
+            `;
+            setTimeout(() => { location.reload(); }, 5000);
         }
     </script>
 </body>
