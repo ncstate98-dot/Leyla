@@ -15,11 +15,20 @@
             justify-content: center;
             height: 100vh;
             margin: 0;
+            padding: 20px;
             overflow: hidden;
             text-align: center;
+            box-sizing: border-box;
         }
-        h1 { font-size: 2.5rem; margin-bottom: 30px; }
-        .btn-container { position: relative; width: 100%; height: 100px; }
+        h1 { font-size: 1.8rem; margin-bottom: 30px; }
+        .btn-container { 
+            position: relative; 
+            width: 100%; 
+            height: 150px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+        }
         button {
             padding: 15px 30px;
             font-size: 1.2rem;
@@ -27,13 +36,58 @@
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            transition: transform 0.1s;
+            touch-action: manipulation; /* Prevents zooming on mobile taps */
         }
-        #yesBtn { background-color: #28a745; color: white; margin-right: 20px; }
+        #yesBtn { background-color: #28a745; color: white; z-index: 10; }
         #noBtn {
             background-color: #dc3545;
             color: white;
             position: absolute;
+            z-index: 20;
+        }
+        #message {
+            margin-top: 40px;
+            font-size: 1rem;
+            color: #00FF41;
+            min-height: 3em;
+            max-width: 90%;
+            font-style: italic;
+        }
+        .reset-note {
+            font-size: 0.8rem;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
+
+    <div class="btn-container">
+        <button id="yesBtn" onclick="sayYes()">Yes</button>
+        <button id="noBtn" onmouseover="moveNo()" onclick="moveNo()">No</button>
+    </div>
+
+    <div id="message"></div>
+
+    <script>
+        let noCount = 0;
+        const noBtn = document.getElementById('noBtn');
+        const messageDiv = document.getElementById('message');
+
+        const responses = [
+            "Hey, are you sure about this?", 
+            "You think you're funny?", 
+            "There is no spoon... and there is no 'No' button.",
+            "I'm trying to free your mind, Leyla.", 
+            "Choice is an illusion created between those with power and those without.",
+            "Fate, it seems, is not without a sense of irony.", 
+            "Not like this... not like this.",
+            "You take the blue pill, the story ends. You hit Yes, the story begins.",
+            "I can only show you the door, you're the one that has to click Yes.",
+            "Denial is the most predictable of all human responses.", 
+            "Mr. Anderson
         }
         #message {
             margin-top: 50px;
