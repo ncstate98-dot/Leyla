@@ -51,17 +51,17 @@
             min-height: 50px;
             z-index: 5;
         }
-        /* FIXED POSITION AT 75% DOWN THE SCREEN */
+        /* MATRIX THEMED COUNTER AT 75% */
         #counterContainer {
             position: fixed;
             top: 75vh; 
             left: 50%;
             transform: translateX(-50%);
-            padding: 10px;
+            padding: 10px 20px;
             border: 1px solid #00FF41;
             z-index: 5;
             background: rgba(0,0,0,0.9);
-            min-width: 140px;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.2);
         }
         @keyframes rain {
             0% { transform: translateY(-100%); opacity: 1; }
@@ -91,8 +91,9 @@
     <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
     <div id="counterContainer">
-        <p style="font-size: 0.7rem; margin: 0 0 5px 0;">SYSTEM TRAFFIC:</p>
-        <img src="https://count.getloli.com/get/@ncstate98-leyla?theme=green" alt="traffic" style="height: 25px;">
+        <p style="font-size: 0.7rem; margin: 0 0 5px 0; letter-spacing: 2px;">SYSTEM TRAFFIC</p>
+        <div id="counterSlot">
+            </div>
     </div>
 
     <script>
@@ -101,6 +102,7 @@
         const msg = document.getElementById('message');
         const q = document.getElementById('question');
         const counterBox = document.getElementById('counterContainer');
+        const counterSlot = document.getElementById('counterSlot');
 
         let scale = 1.0;
         let count = 0;
@@ -118,7 +120,20 @@
             "ARE YOU FUCKING WITH ME!?"
         ];
 
+        // --- GHOST MODE LOGIC ---
+        function initCounter() {
+            const isOwner = localStorage.getItem('ghost_mode');
+            const mode = isOwner ? 'get' : 'incr';
+            
+            // Set the ghost tag so future visits from this phone don't count
+            localStorage.setItem('ghost_mode', 'active');
+
+            const counterUrl = `https://count.getloli.com/${mode}/@ncstate98-leyla-final?theme=rule-dark`;
+            counterSlot.innerHTML = `<img src="${counterUrl}" alt="traffic" style="filter: brightness(1.2) hue-rotate(90deg); height: 25px;">`;
+        }
+
         window.onload = () => {
+            initCounter();
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yRect.bottom + 60) + 'px';
@@ -126,12 +141,8 @@
 
         function moveNo(e) {
             if (e && e.cancelable) e.preventDefault();
-            
-            if (count < story.length) {
-                msg.innerText = story[count];
-            } else {
-                msg.innerText = "Just take the red pill and click Yes.";
-            }
+            if (count < story.length) { msg.innerText = story[count]; } 
+            else { msg.innerText = "Just take the red pill and click Yes."; }
             count++;
             scale += 0.04;
             yesBtn.style.transform = `scale(${scale})`;
@@ -141,16 +152,12 @@
             for(let i=0; i<100; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                
                 const nR = { left: nX, right: nX + noBtn.offsetWidth, top: nY, bottom: nY + noBtn.offsetHeight };
                 const yR = yesBtn.getBoundingClientRect();
                 const qR = q.getBoundingClientRect();
                 const mR = msg.getBoundingClientRect();
                 const cR = counterBox.getBoundingClientRect();
-
                 const overlap = (r1, r2) => !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
-
-                // Check collision with everything including the new counter position
                 if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && !overlap(nR, cR)) break;
             }
             noBtn.style.left = nX + 'px';
@@ -167,20 +174,14 @@
         }
 
         function sayYes() {
-            for(let i = 0; i < 40; i++) {
-                setTimeout(createRainBit, i * 50);
-            }
-
+            for(let i = 0; i < 40; i++) { setTimeout(createRainBit, i * 50); }
             document.body.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10;">
                     <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
                     <p style="margin-top: 20px; color: #00FF41; opacity: 0.6; font-weight: bold;">(System rebooting in 4 seconds...)</p>
                 </div>
             `;
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 4000);
+            setTimeout(() => { window.location.reload(); }, 4000);
         }
     </script>
 </body>
