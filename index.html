@@ -21,12 +21,11 @@
             box-sizing: border-box;
         }
 
-        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; }
+        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; transition: transform 0.2s; }
 
-        /* Container to keep Yes button stable */
         .controls {
             margin-top: 20px;
-            height: 60px;
+            height: 100px; /* Space for the growing button */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -43,7 +42,12 @@
             touch-action: none;
         }
 
-        #yesBtn { background-color: #28a745; color: white; }
+        #yesBtn { 
+            background-color: #28a745; 
+            color: white; 
+            transition: transform 0.2s ease-in-out;
+            transform-origin: center;
+        }
         
         #noBtn {
             background-color: #dc3545;
@@ -54,7 +58,7 @@
         }
 
         #message {
-            margin-top: 30px;
+            margin-top: 50px;
             font-size: 1rem;
             color: #00FF41;
             max-width: 90%;
@@ -81,6 +85,8 @@
         const question = document.getElementById('question');
         const messageDiv = document.getElementById('message');
 
+        let yesScale = 1.0;
+
         const responses = [
             "Hey, are you sure about this?", "You think you're funny?", "There is no spoon...",
             "I'm trying to free your mind, Leyla.", "Choice is an illusion.",
@@ -102,10 +108,10 @@
             "Goodbye, Mr. Anderson...", "Just click Yes."
         ];
 
-        // Position the No button near the Yes button initially
+        // Initial placement of No button
         window.onload = () => {
             const yesRect = yesBtn.getBoundingClientRect();
-            noBtn.style.left = (yesRect.right + 20) + 'px';
+            noBtn.style.left = (yesRect.right + 30) + 'px';
             noBtn.style.top = yesRect.top + 'px';
         };
 
@@ -114,15 +120,18 @@
             const randomIndex = Math.floor(Math.random() * responses.length);
             messageDiv.innerText = responses[randomIndex];
 
+            // Grow the Yes button
+            yesScale += 0.1;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
             const padding = 20;
             const yesRect = yesBtn.getBoundingClientRect();
             const qRect = question.getBoundingClientRect();
             const mRect = messageDiv.getBoundingClientRect();
 
             let newX, newY, overlaps;
-            
-            // Try up to 50 times to find a spot that doesn't overlap text or Yes button
             let attempts = 0;
+
             do {
                 newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
                 newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
@@ -134,9 +143,8 @@
                     bottom: newY + noBtn.offsetHeight
                 };
 
-                // Collision detection function
                 const isOverlapping = (r1, r2) => {
-                    return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+                    return !(r1.right < r2.left - 10 || r1.left > r2.right + 10 || r1.bottom < r2.top - 10 || r1.top > r2.bottom + 10);
                 };
 
                 overlaps = isOverlapping(noRect, yesRect) || 
@@ -144,7 +152,7 @@
                            isOverlapping(noRect, mRect);
                 
                 attempts++;
-            } while (overlaps && attempts < 50);
+            } while (overlaps && attempts < 100);
 
             noBtn.style.left = newX + 'px';
             noBtn.style.top = newY + 'px';
