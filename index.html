@@ -30,6 +30,7 @@
             transition: transform 0.1s;
             z-index: 5;
             cursor: pointer;
+            position: relative;
         }
         #noBtn {
             background-color: #dc3545;
@@ -50,15 +51,17 @@
             min-height: 50px;
             z-index: 5;
         }
-        /* FIXED COUNTER BOX */
+        /* FIXED POSITION AT 75% DOWN THE SCREEN */
         #counterContainer {
-            margin-top: auto;
-            margin-bottom: 30px;
+            position: fixed;
+            top: 75vh; 
+            left: 50%;
+            transform: translateX(-50%);
             padding: 10px;
             border: 1px solid #00FF41;
             z-index: 5;
             background: rgba(0,0,0,0.9);
-            min-width: 150px;
+            min-width: 140px;
         }
         @keyframes rain {
             0% { transform: translateY(-100%); opacity: 1; }
@@ -89,7 +92,7 @@
 
     <div id="counterContainer">
         <p style="font-size: 0.7rem; margin: 0 0 5px 0;">SYSTEM TRAFFIC:</p>
-        <div id="countDisplay" style="font-size: 1.2rem; font-weight: bold;">0000</div>
+        <img src="https://count.getloli.com/get/@ncstate98-leyla?theme=green" alt="traffic" style="height: 25px;">
     </div>
 
     <script>
@@ -98,7 +101,6 @@
         const msg = document.getElementById('message');
         const q = document.getElementById('question');
         const counterBox = document.getElementById('counterContainer');
-        const countDisplay = document.getElementById('countDisplay');
 
         let scale = 1.0;
         let count = 0;
@@ -116,19 +118,7 @@
             "ARE YOU FUCKING WITH ME!?"
         ];
 
-        // RESTORED COUNTER LOGIC (TEXT ONLY)
-        async function loadCounter() {
-            try {
-                const response = await fetch('https://api.countapi.xyz/hit/ncstate98-leyla/visits');
-                const data = await response.json();
-                countDisplay.innerText = data.value.toString().padStart(4, '0');
-            } catch (e) {
-                countDisplay.innerText = "OFFLINE";
-            }
-        }
-
         window.onload = () => {
-            loadCounter();
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yRect.bottom + 60) + 'px';
@@ -151,12 +141,16 @@
             for(let i=0; i<100; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
+                
                 const nR = { left: nX, right: nX + noBtn.offsetWidth, top: nY, bottom: nY + noBtn.offsetHeight };
                 const yR = yesBtn.getBoundingClientRect();
                 const qR = q.getBoundingClientRect();
                 const mR = msg.getBoundingClientRect();
                 const cR = counterBox.getBoundingClientRect();
-                const overlap = (r1, r2) => !(r1.right < r2.left - 15 || r1.left > r2.right + 15 || r1.bottom < r2.top - 15 || r1.top > r2.bottom + 15);
+
+                const overlap = (r1, r2) => !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
+
+                // Check collision with everything including the new counter position
                 if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && !overlap(nR, cR)) break;
             }
             noBtn.style.left = nX + 'px';
