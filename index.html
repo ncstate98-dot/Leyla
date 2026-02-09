@@ -12,24 +12,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px;
             overflow: hidden;
             text-align: center;
             box-sizing: border-box;
         }
-        h1 { font-size: 1.8rem; margin-bottom: 50px; }
-        
-        /* This container keeps buttons side-by-side initially */
-        .btn-container { 
+
+        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; }
+
+        /* Container to keep Yes button stable */
+        .controls {
+            margin-top: 20px;
+            height: 60px;
             display: flex;
-            gap: 20px;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100px;
+            z-index: 5;
         }
 
         button {
@@ -39,24 +40,26 @@
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            touch-action: none; /* Prevents default phone behavior */
+            touch-action: none;
         }
 
-        #yesBtn { background-color: #28a745; color: white; position: relative; }
+        #yesBtn { background-color: #28a745; color: white; }
         
         #noBtn {
             background-color: #dc3545;
             color: white;
-            position: relative; /* Starts relative, then JS turns it absolute */
-            transition: 0.1s;
+            position: absolute;
+            transition: left 0.1s ease, top 0.1s ease;
+            z-index: 10;
         }
 
         #message {
-            margin-top: 50px;
+            margin-top: 30px;
             font-size: 1rem;
             color: #00FF41;
-            min-height: 3em;
             max-width: 90%;
+            font-style: italic;
+            z-index: 5;
         }
     </style>
 </head>
@@ -64,16 +67,18 @@
 
     <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
 
-    <div class="btn-container">
+    <div class="controls">
         <button id="yesBtn" onclick="sayYes()">Yes</button>
-        <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
     </div>
+
+    <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
 
     <div id="message"></div>
 
     <script>
-        let noCount = 0;
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
         const messageDiv = document.getElementById('message');
 
         const responses = [
@@ -89,53 +94,66 @@
             "You’ve already made the choice.", "Human beings are a disease.",
             "Ignorance is bliss.", "A world without rules.", "Stop trying to hit me and hit me!",
             "The answer is out there, Leyla.", "A déjà vu is a glitch.",
-            "Would you still have tried to hit No?", "Is that air you're breathing?",
-            "Your mind makes it real.", "The body cannot live without the 'Yes'.",
+            "Is that air you're breathing?", "Your mind makes it real.",
             "Error 404: No not found.", "You are the One.", "Don't think you are, know you are.",
             "Follow the white rabbit.", "This is your last chance.",
-            "A world where you said Yes.", "You look like Trinity when you're stubborn.",
-            "Because I choose to!", "Walking the path vs knowing the path.",
+            "You look like Trinity when you're stubborn.", "Because I choose to!",
             "You're faster than this!", "I'm the Architect of this page.",
-            "To deny impulses is to deny being human.", "Goodbye, Mr. Anderson...",
-            "The sound of inevitability.", "The Oracle predicted this.", "Just click Yes."
+            "Goodbye, Mr. Anderson...", "Just click Yes."
         ];
 
-        const yesMessages = [
-            "YES! (Did you try the no button, just to see what happens?)",
-            "I knew it! (Did you see how fast that No button was?)",
-            "Excellent choice.", "Victory!", "Welcome to the real world."
-        ];
+        // Position the No button near the Yes button initially
+        window.onload = () => {
+            const yesRect = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (yesRect.right + 20) + 'px';
+            noBtn.style.top = yesRect.top + 'px';
+        };
 
         function moveNo() {
-            noCount++;
-            
-            // On the very first attempt, we switch to absolute so it can jump anywhere
-            if (noBtn.style.position !== 'absolute') {
-                noBtn.style.position = 'absolute';
-            }
+            // Update message immediately
+            const randomIndex = Math.floor(Math.random() * responses.length);
+            messageDiv.innerText = responses[randomIndex];
 
-            // Calculate random coordinates
-            // We subtract button size so it doesn't go off-screen
-            const maxX = window.innerWidth - noBtn.offsetWidth - 20;
-            const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+            const padding = 20;
+            const yesRect = yesBtn.getBoundingClientRect();
+            const qRect = question.getBoundingClientRect();
+            const mRect = messageDiv.getBoundingClientRect();
+
+            let newX, newY, overlaps;
             
-            const newX = Math.floor(Math.random() * maxX);
-            const newY = Math.floor(Math.random() * maxY);
-            
+            // Try up to 50 times to find a spot that doesn't overlap text or Yes button
+            let attempts = 0;
+            do {
+                newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+                newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+                
+                const noRect = {
+                    left: newX,
+                    right: newX + noBtn.offsetWidth,
+                    top: newY,
+                    bottom: newY + noBtn.offsetHeight
+                };
+
+                // Collision detection function
+                const isOverlapping = (r1, r2) => {
+                    return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+                };
+
+                overlaps = isOverlapping(noRect, yesRect) || 
+                           isOverlapping(noRect, qRect) || 
+                           isOverlapping(noRect, mRect);
+                
+                attempts++;
+            } while (overlaps && attempts < 50);
+
             noBtn.style.left = newX + 'px';
             noBtn.style.top = newY + 'px';
-
-            if (noCount % 5 === 0) {
-                const randomIndex = Math.floor(Math.random() * responses.length);
-                messageDiv.innerText = responses[randomIndex];
-            }
         }
 
         function sayYes() {
-            const randomYes = yesMessages[Math.floor(Math.random() * yesMessages.length)];
             document.body.innerHTML = `
-                <h1 style="color: #00FF41;">${randomYes}</h1>
-                <p style="font-size: 5rem;">❤️</p>
+                <h1 style="color: #00FF41; margin-top: 100px;">Excellent choice.</h1>
+                <p style="font-size: 5rem; margin: 20px 0;">❤️</p>
                 <p style="color: #00FF41; opacity: 0.7;">(System rebooting in 5 seconds...)</p>
             `;
             setTimeout(() => { location.reload(); }, 5000);
