@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Valentine's Request</title>
     <style>
+        * { box-sizing: border-box; }
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #0b0b0b;
@@ -12,28 +13,178 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center; /* True center for everything */
             height: 100vh;
             margin: 0;
-            padding: 60px 20px;
+            padding: 20px;
             overflow: hidden;
             text-align: center;
-            box-sizing: border-box;
         }
 
-        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; }
+        #question { 
+            font-size: 1.5rem; 
+            margin-bottom: 20px; 
+            width: 100%;
+            z-index: 5; 
+        }
 
-        .controls {
-            margin-top: 20px;
-            height: 120px; 
+        .yes-container {
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 150px; /* Buffer for growing button */
+            width: 100%;
             z-index: 5;
         }
 
         button {
             padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            touch-action: none;
+        }
+
+        #yesBtn { 
+            background-color: #28a745; 
+            color: white; 
+            transition: transform 0.2s ease-in-out;
+            transform-origin: center;
+        }
+        
+        #noBtn {
+            background-color: #dc3545;
+            color: white;
+            position: absolute;
+            z-index: 10;
+            /* Initial centering logic */
+            left: 50%;
+            transform: translateX(-50%);
+            transition: left 0.15s ease, top 0.15s ease;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #00FF41;
+            height: 60px; /* Prevents text from pushing layout */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
+
+    <div class="yes-container">
+        <button id="yesBtn" onclick="sayYes()">Yes</button>
+    </div>
+
+    <div id="message"></div>
+
+    <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        const messageDiv = document.getElementById('message');
+
+        let yesScale = 1.0;
+        let noClickCount = 0;
+
+        const porterStory = [
+            "I was in San Bernardino, California...",
+            "...in August...",
+            "...at 4 o'clock in the afternoon.",
+            "It's like 115 degrees out.",
+            "I'm just standing there, sweating.",
+            "And this lady comes up to me...",
+            "...she looks me dead in the eye...",
+            "...and she asks me if I'm cold.",
+            "Me, being a gentleman, said...",
+            "ARE YOU FUCKING WITH ME!?"
+        ];
+
+        const matrixResponses = [
+            "There is no spoon...", "Choice is an illusion.", 
+            "Not like this...", "You take the blue pill.", 
+            "Denial is predictable.", "I know kung fu.", 
+            "Error 404: No not found.", "Follow the white rabbit.", 
+            "Just click Yes."
+        ];
+
+        // Position the No button below the Yes container at the start
+        window.onload = () => {
+            const yesCont = document.querySelector('.yes-container').getBoundingClientRect();
+            noBtn.style.top = (yesCont.bottom + 10) + 'px';
+        };
+
+        function moveNo() {
+            // Message update logic
+            if (noClickCount < porterStory.length) {
+                messageDiv.innerText = porterStory[noClickCount];
+            } else {
+                const randomIndex = Math.floor(Math.random() * matrixResponses.length);
+                messageDiv.innerText = matrixResponses[randomIndex];
+            }
+            noClickCount++;
+
+            // Subtle 3% growth
+            yesScale += 0.03;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            const padding = 20;
+            const safeZones = [
+                question.getBoundingClientRect(),
+                yesBtn.getBoundingClientRect(),
+                messageDiv.getBoundingClientRect()
+            ];
+
+            let newX, newY, tooClose;
+            let attempts = 0;
+
+            do {
+                newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+                newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+                
+                const noRect = {
+                    left: newX,
+                    right: newX + noBtn.offsetWidth,
+                    top: newY,
+                    bottom: newY + noBtn.offsetHeight
+                };
+
+                tooClose = safeZones.some(zone => {
+                    return !(noRect.right < zone.left - 25 || noRect.left > zone.right + 25 || 
+                             noRect.bottom < zone.top - 25 || noRect.top > zone.bottom + 25);
+                });
+                
+                attempts++;
+            } while (tooClose && attempts < 100);
+
+            // Remove initial centering transform after first move
+            noBtn.style.transform = 'none';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        }
+
+        function sayYes() {
+            document.body.innerHTML = `
+                <h1 style="color: #00FF41; margin-top: 100px;">Excellent choice.</h1>
+                <p style="font-size: 5rem; margin: 20px 0;">❤️</p>
+                <p style="color: #00FF41; opacity: 0.7;">(System rebooting...)</p>
+            `;
+            setTimeout(() => { location.reload(); }, 4000);
+        }
+    </script>
+</body>
+</html>
             font-size: 1.2rem;
             cursor: pointer;
             border: none;
