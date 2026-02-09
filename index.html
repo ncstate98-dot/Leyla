@@ -76,7 +76,7 @@
 
     <div id="message"></div>
 
-    <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()">No</button>
+    <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
     <script>
         const noBtn = document.getElementById('noBtn');
@@ -106,7 +106,10 @@
             noBtn.style.top = (yRect.bottom + 60) + 'px';
         };
 
-        function moveNo() {
+        function moveNo(e) {
+            // This is the fix: stops the browser from running the code twice on one tap
+            if (e && e.cancelable) e.preventDefault();
+
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
