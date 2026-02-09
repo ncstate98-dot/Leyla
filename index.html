@@ -51,7 +51,6 @@
             z-index: 5;
             line-height: 1.4;
         }
-        /* Matrix Rain Animation */
         @keyframes rain {
             0% { transform: translateY(-100%); opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
@@ -88,11 +87,10 @@
         let scale = 1.0;
         let count = 0;
 
-        // Custom funny sequence
         const story = [
             "Wait, maybe reconsider?",
             "Are you absolutely sure?",
-            "I heard that Bobby is a catch... rethink that.",
+            "I heard that Bobby is a catch... maybe rethink that.",
             "Choice is an illusion, Leyla.",
             "I'm trying to free your mind here.",
             "Really? You're still going for 'No'?",
@@ -112,7 +110,6 @@
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
-                // Keep the final line or loop matrix lines
                 msg.innerText = "Just take the red pill and click Yes.";
             }
             count++;
@@ -142,9 +139,8 @@
         }
 
         function sayYes() {
-            // Start the Matrix Rain
-            for(let i = 0; i < 20; i++) {
-                createRainBit();
+            for(let i = 0; i < 25; i++) {
+                setTimeout(createRainBit, i * 50);
             }
 
             document.body.innerHTML = `
