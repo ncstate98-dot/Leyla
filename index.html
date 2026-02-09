@@ -15,17 +15,17 @@
             justify-content: flex-start;
             height: 100vh;
             margin: 0;
-            padding: 40px 20px;
+            padding: 60px 20px;
             overflow: hidden;
             text-align: center;
             box-sizing: border-box;
         }
 
-        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; transition: transform 0.2s; }
+        #question { font-size: 1.8rem; margin-bottom: 20px; z-index: 5; }
 
         .controls {
             margin-top: 20px;
-            height: 100px; /* Space for the growing button */
+            height: 120px; 
             display: flex;
             justify-content: center;
             align-items: center;
@@ -34,6 +34,157 @@
 
         button {
             padding: 15px 30px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            touch-action: none;
+        }
+
+        #yesBtn { 
+            background-color: #28a745; 
+            color: white; 
+            transition: transform 0.2s ease-in-out;
+            transform-origin: center;
+            position: relative;
+        }
+        
+        #noBtn {
+            background-color: #dc3545;
+            color: white;
+            position: absolute;
+            transition: left 0.1s ease, top 0.1s ease;
+            z-index: 10;
+        }
+
+        #message {
+            margin-top: 100px;
+            font-size: 1.1rem;
+            color: #00FF41;
+            max-width: 90%;
+            font-weight: bold;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
+
+    <div class="controls">
+        <button id="yesBtn" onclick="sayYes()">Yes</button>
+    </div>
+
+    <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()" onclick="moveNo()">No</button>
+
+    <div id="message"></div>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        const messageDiv = document.getElementById('message');
+
+        let yesScale = 1.0;
+        let noClickCount = 0;
+
+        const porterStory = [
+            "I was in San Bernardino, California...",
+            "...in August...",
+            "...at 4 o'clock in the afternoon.",
+            "It's like 115 degrees out.",
+            "I'm just standing there, sweating.",
+            "And this lady comes up to me...",
+            "...she looks me dead in the eye...",
+            "...and she asks me if I'm cold.",
+            "Me, being a gentleman, said...",
+            "ARE YOU FUCKING WITH ME!?"
+        ];
+
+        const matrixResponses = [
+            "There is no spoon...", "I'm trying to free your mind, Leyla.", 
+            "Choice is an illusion.", "Fate, it seems, is not without a sense of irony.", 
+            "Not like this...", "You take the blue pill, the story ends.", 
+            "I can only show you the door.", "Denial is the most predictable response.", 
+            "Why do you persist?", "Were you looking at the girl in the red dress?", 
+            "You're beginning to believe!", "I know kung fu.", "The Matrix is everywhere.", 
+            "Dodging bullets is easy. Dodging this? Harder.", "What is 'Real'?",
+            "You’ve already made the choice.", "Ignorance is bliss.", 
+            "Stop trying to hit me and hit me!", "The answer is out there, Leyla.", 
+            "Your mind makes it real.", "Error 404: No not found.", "You are the One.", 
+            "Follow the white rabbit.", "Goodbye, Mr. Anderson...", "Just click Yes."
+        ];
+
+        // Center No button below Yes button initially
+        window.onload = () => {
+            const yesRect = yesBtn.getBoundingClientRect();
+            const noWidth = noBtn.offsetWidth;
+            // Center horizontally relative to window, put 80px below Yes button
+            noBtn.style.left = (window.innerWidth / 2 - noWidth / 2) + 'px';
+            noBtn.style.top = (yesRect.bottom + 80) + 'px';
+        };
+
+        function moveNo() {
+            // Update message
+            if (noClickCount < porterStory.length) {
+                messageDiv.innerText = porterStory[noClickCount];
+            } else {
+                const randomIndex = Math.floor(Math.random() * matrixResponses.length);
+                messageDiv.innerText = matrixResponses[randomIndex];
+            }
+            
+            noClickCount++;
+
+            // Grow Yes button by 3%
+            yesScale += 0.03;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            const padding = 20;
+            const yesRect = yesBtn.getBoundingClientRect();
+            const qRect = question.getBoundingClientRect();
+            const mRect = messageDiv.getBoundingClientRect();
+
+            let newX, newY, overlaps;
+            let attempts = 0;
+
+            do {
+                newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+                newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+                
+                const noRect = {
+                    left: newX,
+                    right: newX + noBtn.offsetWidth,
+                    top: newY,
+                    bottom: newY + noBtn.offsetHeight
+                };
+
+                const isOverlapping = (r1, r2) => {
+                    return !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
+                };
+
+                overlaps = isOverlapping(noRect, yesRect) || 
+                           isOverlapping(noRect, qRect) || 
+                           isOverlapping(noRect, mRect);
+                
+                attempts++;
+            } while (overlaps && attempts < 100);
+
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        }
+
+        function sayYes() {
+            document.body.innerHTML = `
+                <h1 style="color: #00FF41; margin-top: 100px;">Excellent choice.</h1>
+                <p style="font-size: 5rem; margin: 20px 0;">❤️</p>
+                <p style="color: #00FF41; opacity: 0.7;">(System rebooting in 5 seconds...)</p>
+            `;
+            setTimeout(() => { location.reload(); }, 5000);
+        }
+    </script>
+</body>
+</html>
             font-size: 1.2rem;
             cursor: pointer;
             border: none;
