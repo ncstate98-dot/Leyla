@@ -46,11 +46,12 @@
         }
         #message {
             margin-top: 40px;
-            font-size: 1.1rem;
+            font-size: 1rem; /* Slightly smaller for the longer deadpan line */
             font-weight: bold;
-            min-height: 50px;
+            min-height: 60px;
             z-index: 5;
-            padding: 0 10px;
+            padding: 0 15px;
+            line-height: 1.4;
         }
         #counterContainer {
             position: fixed;
@@ -121,7 +122,7 @@
             "Come on... Really?",
             "This is getting a bit awkward now.",
             "I think someone is trying to be funny, that's awesome 😐",
-            "Ok, me being the gentleman that I am, will respond with a: 'ARE YOU FUCKING WITH ME!?'"
+            "Ok, me being the gentleman that I am, will respond with a: 'are you fucking with me!?'"
         ];
 
         async function loadCounter() {
