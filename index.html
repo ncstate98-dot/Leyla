@@ -51,6 +51,7 @@
             z-index: 5;
             line-height: 1.4;
         }
+        #viewCount { font-size: 0.7rem; opacity: 0.3; margin-top: auto; padding-bottom: 10px; }
         @keyframes rain {
             0% { transform: translateY(-100%); opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
@@ -78,11 +79,14 @@
 
     <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
+    <div id="viewCount"></div>
+
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
         const q = document.getElementById('question');
+        const viewDiv = document.getElementById('viewCount');
 
         let scale = 1.0;
         let count = 0;
@@ -100,61 +104,76 @@
             "ARE YOU FUCKING WITH ME!?"
         ];
 
+        // --- TRACKING LOGIC ---
+        // Change 'my_secret_key_2026' to something unique to you
+        const statsKey = 'leyla_valentine_2026'; 
+        
+        async function updateCounter() {
+            // Check if this browser has been marked as "Admin" (You)
+            const isAdmin = localStorage.getItem('isAdmin');
+            
+            // If you want to exclude yourself, type 'javascript:localStorage.setItem("isAdmin", "true")' 
+            // in your browser console once, or just wait for the first time you visit.
+            
+            let url = `https://api.countapi.xyz/hit/${statsKey}/visits`;
+            if (isAdmin) {
+                // Just get the value without increasing it
+                url = `https://api.countapi.xyz/get/${statsKey}/visits`;
+            }
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                viewDiv.innerText = `System Hits: ${data.value}`;
+            } catch (e) {
+                console.log("Counter offline");
+            }
+        }
+
         window.onload = () => {
+            updateCounter();
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yRect.bottom + 60) + 'px';
         };
 
+        // --- GAME LOGIC ---
         function moveNo(e) {
-            // This is the fix: stops the browser from running the code twice on one tap
             if (e && e.cancelable) e.preventDefault();
-
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
                 msg.innerText = "Just take the red pill and click Yes.";
             }
             count++;
-
             scale += 0.03;
             yesBtn.style.transform = `scale(${scale})`;
 
             const pad = 40;
             let nX, nY;
-            
             for(let i=0; i<50; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                
                 const nR = { left: nX, right: nX + noBtn.offsetWidth, top: nY, bottom: nY + noBtn.offsetHeight };
                 const yR = yesBtn.getBoundingClientRect();
                 const qR = q.getBoundingClientRect();
                 const mR = msg.getBoundingClientRect();
-
                 const overlap = (r1, r2) => !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
-
                 if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR)) break;
             }
-
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
         }
 
         function sayYes() {
-            for(let i = 0; i < 25; i++) {
-                setTimeout(createRainBit, i * 50);
-            }
-
+            for(let i = 0; i < 25; i++) { setTimeout(createRainBit, i * 50); }
             document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10;">
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
                     <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
                     <p style="margin-top: 20px; color: #00FF41; opacity: 0.6; font-weight: bold;">(System rebooting in 4 seconds...)</p>
                 </div>
             `;
-            setTimeout(() => {
-                window.location.reload();
-            }, 4000);
+            setTimeout(() => { window.location.reload(); }, 4000);
         }
 
         function createRainBit() {
