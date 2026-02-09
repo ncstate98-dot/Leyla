@@ -51,7 +51,6 @@
             min-height: 50px;
             z-index: 5;
         }
-        /* PLAIN MATRIX THEMED COUNTER */
         #counterContainer {
             position: fixed;
             top: 75vh; 
@@ -124,11 +123,8 @@
             "ARE YOU FUCKING WITH ME!?"
         ];
 
-        // --- IMPROVED GHOST MODE & PLAIN TEXT COUNTER ---
         async function loadCounter() {
             const hasBeenHere = localStorage.getItem('leyla_owner');
-            // If it's your first time with this code, it counts +1 and saves you as owner
-            // Every time after, it just gets the number without adding to it
             const hitType = hasBeenHere ? 'get' : 'hit';
             
             try {
@@ -137,7 +133,6 @@
                 counterText.innerText = data.value.toString().padStart(4, '0');
                 localStorage.setItem('leyla_owner', 'true');
             } catch (e) {
-                // Fallback if the API is slow
                 counterText.innerText = "0008"; 
             }
         }
@@ -186,9 +181,12 @@
         function sayYes() {
             for(let i = 0; i < 40; i++) { setTimeout(createRainBit, i * 50); }
             document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10;">
-                    <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
-                    <p style="margin-top: 20px; color: #00FF41; opacity: 0.6; font-weight: bold;">(System rebooting in 4 seconds...)</p>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10; padding: 20px;">
+                    <h1 style="color: #00FF41; font-size: 2.2rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
+                    <p style="color: #00FF41; font-size: 1.1rem; margin-top: 10px; font-weight: bold;">
+                        just like in the matrix, it's almost like you didn't have a choice, haha 😂
+                    </p>
+                    <p style="margin-top: 30px; color: #00FF41; opacity: 0.6; font-size: 0.9rem;">(System rebooting in 4 seconds...)</p>
                 </div>
             `;
             setTimeout(() => { window.location.reload(); }, 4000);
