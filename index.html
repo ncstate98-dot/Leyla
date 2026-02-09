@@ -50,6 +50,7 @@
             font-weight: bold;
             min-height: 50px;
             z-index: 5;
+            padding: 0 10px;
         }
         #counterContainer {
             position: fixed;
@@ -95,7 +96,7 @@
     <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
     <div id="counterContainer">
-        <p style="font-size: 0.7rem; margin: 0 0 5px 0; letter-spacing: 2px; opacity: 0.8;">SYSTEM TRAFFIC</p>
+        <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
         <div id="counterText">0000</div>
     </div>
 
@@ -119,8 +120,8 @@
             "Really? You're still going for 'No'?",
             "Come on... Really?",
             "This is getting a bit awkward now.",
-            "Fate, it seems, is not without a sense of irony.",
-            "ARE YOU FUCKING WITH ME!?"
+            "I think someone is trying to be funny, that's awesome 😐",
+            "Ok, me being the gentleman that I am, will respond with a: 'ARE YOU FUCKING WITH ME!?'"
         ];
 
         async function loadCounter() {
@@ -183,7 +184,7 @@
             document.body.innerHTML = `
                 <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10; padding: 20px;">
                     <h1 style="color: #00FF41; font-size: 2.2rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
-                    <p style="color: #00FF41; font-size: 1.1rem; margin-top: 10px; font-weight: bold;">
+                    <p style="color: #00FF41; font-size: 1.1rem; margin-top: 10px; font-weight: bold; max-width: 80%;">
                         just like in the matrix, it's almost like you didn't have a choice, haha 😂
                     </p>
                     <p style="margin-top: 30px; color: #00FF41; opacity: 0.6; font-size: 0.9rem;">(System rebooting in 4 seconds...)</p>
