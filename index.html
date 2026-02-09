@@ -45,10 +45,25 @@
         }
         #message {
             margin-top: 40px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             min-height: 50px;
             z-index: 5;
+            line-height: 1.4;
+        }
+        /* Matrix Rain Animation */
+        @keyframes rain {
+            0% { transform: translateY(-100%); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+        .matrix-bit {
+            position: fixed;
+            top: -20px;
+            color: #00FF41;
+            font-size: 1rem;
+            user-select: none;
+            z-index: 1;
+            animation: rain linear infinite;
         }
     </style>
 </head>
@@ -73,16 +88,17 @@
         let scale = 1.0;
         let count = 0;
 
+        // Custom funny sequence
         const story = [
-            "I was in San Bernardino, California...",
-            "...in August...",
-            "...at 4 o'clock in the afternoon.",
-            "It's like 115 degrees out.",
-            "I'm just standing there, sweating.",
-            "And this lady comes up to me...",
-            "She looks me dead in the eye...",
-            "And she asks me if I'm cold.",
-            "Me, being a gentleman, said...",
+            "Wait, maybe reconsider?",
+            "Are you absolutely sure?",
+            "I heard that Bobby is a catch... rethink that.",
+            "Choice is an illusion, Leyla.",
+            "I'm trying to free your mind here.",
+            "Really? You're still going for 'No'?",
+            "Come on... Really?",
+            "This is getting a bit awkward now.",
+            "Fate, it seems, is not without a sense of irony.",
             "ARE YOU FUCKING WITH ME!?"
         ];
 
@@ -96,7 +112,8 @@
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
-                msg.innerText = "Choice is an illusion, Leyla.";
+                // Keep the final line or loop matrix lines
+                msg.innerText = "Just take the red pill and click Yes.";
             }
             count++;
 
@@ -125,16 +142,29 @@
         }
 
         function sayYes() {
-            // Updated cleanup and reset logic
+            // Start the Matrix Rain
+            for(let i = 0; i < 20; i++) {
+                createRainBit();
+            }
+
             document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-                    <h1 style="color: #00FF41; font-size: 2rem;">Excellent choice. ❤️</h1>
-                    <p style="margin-top: 20px; color: #00FF41; opacity: 0.6;">(System rebooting in 4 seconds...)</p>
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; position: relative; z-index: 10;">
+                    <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
+                    <p style="margin-top: 20px; color: #00FF41; opacity: 0.6; font-weight: bold;">(System rebooting in 4 seconds...)</p>
                 </div>
             `;
             setTimeout(() => {
                 window.location.reload();
             }, 4000);
+        }
+
+        function createRainBit() {
+            const bit = document.createElement('div');
+            bit.className = 'matrix-bit';
+            bit.innerText = Math.random() > 0.5 ? '1' : '0';
+            bit.style.left = Math.random() * 100 + 'vw';
+            bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            document.body.appendChild(bit);
         }
     </script>
 </body>
