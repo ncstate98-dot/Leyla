@@ -18,7 +18,7 @@
             flex-direction: column;
             align-items: center;
         }
-        #question { font-size: 1.5rem; margin-top: 20px; min-height: 80px; z-index: 5; }
+        #question { font-size: 1.5rem; margin-top: 20px; min-height: 80px; z-index: 5; position: relative; }
         #yesBtn {
             background-color: #28a745;
             color: white;
@@ -30,6 +30,7 @@
             transition: transform 0.1s;
             z-index: 5;
             cursor: pointer;
+            position: relative;
         }
         #noBtn {
             background-color: #dc3545;
@@ -49,6 +50,7 @@
             font-weight: bold;
             min-height: 50px;
             z-index: 5;
+            position: relative;
         }
         #counterContainer {
             margin-top: auto;
@@ -57,8 +59,8 @@
             border: 1px solid #00FF41;
             z-index: 5;
             background: black;
+            position: relative;
         }
-        /* Matrix Rain Styles */
         @keyframes rain {
             0% { transform: translateY(-100%); opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
@@ -71,6 +73,18 @@
             user-select: none;
             z-index: 1;
             animation: rain linear infinite;
+        }
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b0b0b;
+            z-index: 100;
         }
     </style>
 </head>
@@ -88,7 +102,7 @@
 
     <div id="counterContainer">
         <p style="font-size: 0.7rem; margin: 0 0 5px 0;">SYSTEM TRAFFIC</p>
-        <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fncstate98-dot.github.io%2FLeyla&count_bg=%2300FF41&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" alt="Hits"/>
+        <img src="https://counter.ghidini.me/get/@leyla-valentine-2026?theme=rule" alt="Hits">
     </div>
 
     <script>
@@ -96,6 +110,7 @@
         const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
         const q = document.getElementById('question');
+        const counter = document.getElementById('counterContainer');
 
         let scale = 1.0;
         let count = 0;
@@ -114,13 +129,18 @@
         ];
 
         window.onload = () => {
+            resetNoButton();
+        };
+
+        function resetNoButton() {
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yRect.bottom + 50) + 'px';
-        };
+        }
 
         function moveNo(e) {
             if (e && e.cancelable) e.preventDefault();
+            
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
@@ -130,8 +150,25 @@
             scale += 0.04;
             yesBtn.style.transform = `scale(${scale})`;
 
-            const nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
-            const nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 150);
+            // Overlap prevention logic
+            let nX, nY;
+            const pad = 20;
+            
+            for(let i=0; i<100; i++) {
+                nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
+                nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
+                
+                const nR = { left: nX, right: nX + noBtn.offsetWidth, top: nY, bottom: nY + noBtn.offsetHeight };
+                const yR = yesBtn.getBoundingClientRect();
+                const qR = q.getBoundingClientRect();
+                const mR = msg.getBoundingClientRect();
+                const cR = counter.getBoundingClientRect();
+
+                const overlap = (r1, r2) => !(r1.right < r2.left - 10 || r1.left > r2.right + 10 || r1.bottom < r2.top - 10 || r1.top > r2.bottom + 10);
+
+                if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && !overlap(nR, cR)) break;
+            }
+
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
         }
@@ -146,17 +183,17 @@
         }
 
         function sayYes() {
-            // Start rain
-            for(let i = 0; i < 40; i++) {
-                setTimeout(createRainBit, i * 50);
+            // Create a clean overlay for the Matrix effect
+            const overlay = document.createElement('div');
+            overlay.className = 'success-overlay';
+            overlay.innerHTML = '<h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41; z-index: 110;">Excellent choice. ❤️</h1>';
+            document.body.appendChild(overlay);
+
+            for(let i = 0; i < 50; i++) {
+                setTimeout(createRainBit, i * 60);
             }
-            // Keep the text on top of the rain
-            document.body.innerHTML += `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: rgba(11,11,11,0.8); z-index: 10;">
-                    <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
-                </div>
-            `;
-            setTimeout(() => { window.location.reload(); }, 4000);
+            
+            setTimeout(() => { window.location.reload(); }, 4500);
         }
     </script>
 </body>
