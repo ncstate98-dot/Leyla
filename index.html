@@ -87,14 +87,12 @@
         ];
 
         window.onload = () => {
-            // Force No button to start clearly below the Yes button
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yRect.bottom + 60) + 'px';
         };
 
         function moveNo() {
-            // Text logic
             if (count < story.length) {
                 msg.innerText = story[count];
             } else {
@@ -102,13 +100,11 @@
             }
             count++;
 
-            // 3% Growth
             scale += 0.03;
             yesBtn.style.transform = `scale(${scale})`;
 
-            // Jump logic
             const pad = 40;
-            let nX, nY, tooClose;
+            let nX, nY;
             
             for(let i=0; i<50; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
@@ -129,7 +125,16 @@
         }
 
         function sayYes() {
-            document.body.innerHTML = '<h1 style="color: #00FF41; margin-top: 40vh;">Excellent choice. ❤️</h1>';
+            // Updated cleanup and reset logic
+            document.body.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
+                    <h1 style="color: #00FF41; font-size: 2rem;">Excellent choice. ❤️</h1>
+                    <p style="margin-top: 20px; color: #00FF41; opacity: 0.6;">(System rebooting in 4 seconds...)</p>
+                </div>
+            `;
+            setTimeout(() => {
+                window.location.reload();
+            }, 4000);
         }
     </script>
 </body>
