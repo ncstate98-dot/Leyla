@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Valentine Debug</title>
+    <title>Valentine Final</title>
     <style>
         body {
             background-color: #0b0b0b;
@@ -16,9 +16,9 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
         }
         #question { font-size: 1.5rem; margin-top: 20px; min-height: 80px; }
+        .btn-container { margin-top: 20px; position: relative; width: 100%; height: 100px; }
         #yesBtn {
             background-color: #28a745;
             color: white;
@@ -39,25 +39,24 @@
             border-radius: 8px;
             font-weight: bold;
             position: absolute;
-            z-index: 100; /* Ensure it stays on top */
+            z-index: 100;
             touch-action: none;
         }
         #message {
-            margin-top: 30px;
+            margin-top: 100px; /* Pushes message down to clear the buttons */
             font-size: 1.1rem;
             font-weight: bold;
             min-height: 60px;
-            color: #00FF41;
+            padding: 0 20px;
         }
-        /* DEBUG COUNTER: Bright and Big at the bottom */
-        #viewCount { 
-            font-size: 1.5rem; 
-            color: yellow; 
-            background: rgba(255, 255, 255, 0.1);
+        /* THE COUNTER: Now clearly visible and centered */
+        #counterContainer {
+            margin-top: auto;
+            margin-bottom: 40px; /* Moves it up from the very bottom edge */
             padding: 10px;
-            margin-top: auto; 
-            border: 2px solid yellow;
-            z-index: 200;
+            border: 1px solid #00FF41;
+            display: inline-block;
+            align-self: center;
         }
     </style>
 </head>
@@ -65,7 +64,7 @@
 
     <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
 
-    <div style="margin-top: 20px;">
+    <div class="btn-container">
         <button id="yesBtn" onclick="sayYes()">Yes</button>
     </div>
 
@@ -73,13 +72,16 @@
 
     <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
-    <div id="viewCount">Loading Counter...</div>
+    <div id="counterContainer">
+        <p style="font-size: 0.8rem; margin: 0 0 5px 0;">SYSTEM TRAFFIC:</p>
+        <img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fncstate98-dot.github.io&count_bg=%2300FF41&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false" alt="Hits"/>
+    </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
-        const viewDiv = document.getElementById('viewCount');
+        const q = document.getElementById('question');
 
         let scale = 1.0;
         let count = 0;
@@ -97,34 +99,11 @@
             "ARE YOU FUCKING WITH ME!?"
         ];
 
-        // --- TRACKING LOGIC ---
-        const statsKey = 'leyla_valentine_debug_99'; // New key for fresh start
-        
-        async function updateCounter() {
-            const isAdmin = localStorage.getItem('isAdmin');
-            // Use 'hit' to increase, 'get' to just read
-            let url = `https://api.countapi.xyz/${isAdmin ? 'get' : 'hit'}/${statsKey}/visits`;
-
-            try {
-                const response = await fetch(url);
-                const data = await response.json();
-                if(data.value) {
-                    viewDiv.innerText = `VIEWS: ${data.value}`;
-                } else {
-                    viewDiv.innerText = "Counter connected, no views yet.";
-                }
-            } catch (e) {
-                viewDiv.innerText = "Counter Error: API blocked or down.";
-                viewDiv.style.color = "red";
-            }
-        }
-
         window.onload = () => {
-            updateCounter();
-            // Start No button below Yes button
             const yRect = yesBtn.getBoundingClientRect();
+            // Perfectly centered start for the No button
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
-            noBtn.style.top = (yRect.bottom + 40) + 'px';
+            noBtn.style.top = (yRect.bottom + 20) + 'px';
         };
 
         function moveNo(e) {
@@ -135,13 +114,13 @@
                 msg.innerText = "Just take the red pill and click Yes.";
             }
             count++;
-            scale += 0.05; // Slightly faster growth for debug
+            scale += 0.05;
             yesBtn.style.transform = `scale(${scale})`;
 
-            // Random jump logic
+            // Random movement within bounds
             const nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
-            const nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 100);
-            noBtn.style.left = nX + 'px';
+            const nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 150);
+            noBtn.style.left = Math.random() > 0.5 ? nX + 'px' : '20px';
             noBtn.style.top = nY + 'px';
         }
 
