@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Valentine</title>
+    <title>Valentine Debug</title>
     <style>
         body {
             background-color: #0b0b0b;
@@ -11,14 +11,14 @@
             font-family: 'Courier New', monospace;
             text-align: center;
             margin: 0;
-            padding: 50px 20px;
+            padding: 20px;
             overflow: hidden;
             height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        #question { font-size: 1.5rem; margin-bottom: 30px; z-index: 5; }
+        #question { font-size: 1.5rem; margin-top: 20px; min-height: 80px; }
         #yesBtn {
             background-color: #28a745;
             color: white;
@@ -28,7 +28,6 @@
             border-radius: 8px;
             font-weight: bold;
             transition: transform 0.1s;
-            z-index: 5;
             cursor: pointer;
         }
         #noBtn {
@@ -40,30 +39,25 @@
             border-radius: 8px;
             font-weight: bold;
             position: absolute;
-            z-index: 10;
+            z-index: 100; /* Ensure it stays on top */
             touch-action: none;
         }
         #message {
-            margin-top: 40px;
+            margin-top: 30px;
             font-size: 1.1rem;
             font-weight: bold;
-            min-height: 50px;
-            z-index: 5;
-            line-height: 1.4;
-        }
-        #viewCount { font-size: 0.7rem; opacity: 0.3; margin-top: auto; padding-bottom: 10px; }
-        @keyframes rain {
-            0% { transform: translateY(-100%); opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
-        }
-        .matrix-bit {
-            position: fixed;
-            top: -20px;
+            min-height: 60px;
             color: #00FF41;
-            font-size: 1rem;
-            user-select: none;
-            z-index: 1;
-            animation: rain linear infinite;
+        }
+        /* DEBUG COUNTER: Bright and Big at the bottom */
+        #viewCount { 
+            font-size: 1.5rem; 
+            color: yellow; 
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin-top: auto; 
+            border: 2px solid yellow;
+            z-index: 200;
         }
     </style>
 </head>
@@ -71,7 +65,7 @@
 
     <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
 
-    <div>
+    <div style="margin-top: 20px;">
         <button id="yesBtn" onclick="sayYes()">Yes</button>
     </div>
 
@@ -79,13 +73,12 @@
 
     <button id="noBtn" onmouseover="moveNo(event)" ontouchstart="moveNo(event)">No</button>
 
-    <div id="viewCount"></div>
+    <div id="viewCount">Loading Counter...</div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
         const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
-        const q = document.getElementById('question');
         const viewDiv = document.getElementById('viewCount');
 
         let scale = 1.0;
@@ -105,39 +98,35 @@
         ];
 
         // --- TRACKING LOGIC ---
-        // Change 'my_secret_key_2026' to something unique to you
-        const statsKey = 'leyla_valentine_2026'; 
+        const statsKey = 'leyla_valentine_debug_99'; // New key for fresh start
         
         async function updateCounter() {
-            // Check if this browser has been marked as "Admin" (You)
             const isAdmin = localStorage.getItem('isAdmin');
-            
-            // If you want to exclude yourself, type 'javascript:localStorage.setItem("isAdmin", "true")' 
-            // in your browser console once, or just wait for the first time you visit.
-            
-            let url = `https://api.countapi.xyz/hit/${statsKey}/visits`;
-            if (isAdmin) {
-                // Just get the value without increasing it
-                url = `https://api.countapi.xyz/get/${statsKey}/visits`;
-            }
+            // Use 'hit' to increase, 'get' to just read
+            let url = `https://api.countapi.xyz/${isAdmin ? 'get' : 'hit'}/${statsKey}/visits`;
 
             try {
                 const response = await fetch(url);
                 const data = await response.json();
-                viewDiv.innerText = `System Hits: ${data.value}`;
+                if(data.value) {
+                    viewDiv.innerText = `VIEWS: ${data.value}`;
+                } else {
+                    viewDiv.innerText = "Counter connected, no views yet.";
+                }
             } catch (e) {
-                console.log("Counter offline");
+                viewDiv.innerText = "Counter Error: API blocked or down.";
+                viewDiv.style.color = "red";
             }
         }
 
         window.onload = () => {
             updateCounter();
+            // Start No button below Yes button
             const yRect = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
-            noBtn.style.top = (yRect.bottom + 60) + 'px';
+            noBtn.style.top = (yRect.bottom + 40) + 'px';
         };
 
-        // --- GAME LOGIC ---
         function moveNo(e) {
             if (e && e.cancelable) e.preventDefault();
             if (count < story.length) {
@@ -146,43 +135,19 @@
                 msg.innerText = "Just take the red pill and click Yes.";
             }
             count++;
-            scale += 0.03;
+            scale += 0.05; // Slightly faster growth for debug
             yesBtn.style.transform = `scale(${scale})`;
 
-            const pad = 40;
-            let nX, nY;
-            for(let i=0; i<50; i++) {
-                nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
-                nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                const nR = { left: nX, right: nX + noBtn.offsetWidth, top: nY, bottom: nY + noBtn.offsetHeight };
-                const yR = yesBtn.getBoundingClientRect();
-                const qR = q.getBoundingClientRect();
-                const mR = msg.getBoundingClientRect();
-                const overlap = (r1, r2) => !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
-                if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR)) break;
-            }
+            // Random jump logic
+            const nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
+            const nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 100);
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
         }
 
         function sayYes() {
-            for(let i = 0; i < 25; i++) { setTimeout(createRainBit, i * 50); }
-            document.body.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;">
-                    <h1 style="color: #00FF41; font-size: 2.5rem; text-shadow: 0 0 10px #00FF41;">Excellent choice. ❤️</h1>
-                    <p style="margin-top: 20px; color: #00FF41; opacity: 0.6; font-weight: bold;">(System rebooting in 4 seconds...)</p>
-                </div>
-            `;
-            setTimeout(() => { window.location.reload(); }, 4000);
-        }
-
-        function createRainBit() {
-            const bit = document.createElement('div');
-            bit.className = 'matrix-bit';
-            bit.innerText = Math.random() > 0.5 ? '1' : '0';
-            bit.style.left = Math.random() * 100 + 'vw';
-            bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
-            document.body.appendChild(bit);
+            document.body.innerHTML = '<h1 style="color: #00FF41; margin-top: 40vh;">Excellent choice. ❤️</h1>';
+            setTimeout(() => { window.location.reload(); }, 3000);
         }
     </script>
 </body>
