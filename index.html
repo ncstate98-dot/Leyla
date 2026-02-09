@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Valentine's Request</title>
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Courier New', Courier, monospace;
             background-color: #0b0b0b;
@@ -13,27 +13,151 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* True center for everything */
             height: 100vh;
-            margin: 0;
-            padding: 20px;
+            padding-top: 10vh;
             overflow: hidden;
             text-align: center;
         }
-
-        #question { 
-            font-size: 1.5rem; 
-            margin-bottom: 20px; 
-            width: 100%;
-            z-index: 5; 
-        }
-
-        .yes-container {
+        #question { font-size: 1.6rem; padding: 0 20px; min-height: 80px; }
+        .yes-wrap {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 150px; /* Buffer for growing button */
+            height: 160px;
             width: 100%;
+        }
+        #yesBtn { 
+            background-color: #28a745; 
+            color: white; 
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            z-index: 5;
+        }
+        #noBtn {
+            background-color: #dc3545;
+            color: white;
+            padding: 15px 35px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            position: absolute;
+            cursor: pointer;
+            touch-action: none;
+            z-index: 10;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 1rem;
+            color: #00FF41;
+            padding: 0 20px;
+            font-weight: bold;
+            height: 50px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
+
+    <div class="yes-wrap">
+        <button id="yesBtn" onclick="sayYes()">Yes</button>
+    </div>
+
+    <div id="message"></div>
+
+    <button id="noBtn" onmouseover="moveNo()" ontouchstart="moveNo()">No</button>
+
+    <script>
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const question = document.getElementById('question');
+        const messageDiv = document.getElementById('message');
+
+        let yesScale = 1.0;
+        let noClickCount = 0;
+
+        const porterStory = [
+            "I was in San Bernardino, California...",
+            "...in August...",
+            "...at 4 o'clock in the afternoon.",
+            "It's like 115 degrees out.",
+            "I'm just standing there, sweating.",
+            "And this lady comes up to me...",
+            "She looks me dead in the eye...",
+            "And she asks me if I'm cold.",
+            "Me, being a gentleman, said...",
+            "ARE YOU FUCKING WITH ME!?"
+        ];
+
+        const matrix = [
+            "There is no spoon...", "Choice is an illusion.", 
+            "I know kung fu.", "Follow the white rabbit.", 
+            "Just click Yes, Leyla."
+        ];
+
+        window.onload = () => {
+            const yesRect = yesBtn.getBoundingClientRect();
+            // Start centered below Yes button
+            noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
+            noBtn.style.top = (yesRect.bottom + 40) + 'px';
+        };
+
+        function moveNo() {
+            // Text logic
+            if (noClickCount < porterStory.length) {
+                messageDiv.innerText = porterStory[noClickCount];
+            } else {
+                messageDiv.innerText = matrix[Math.floor(Math.random() * matrix.length)];
+            }
+            noClickCount++;
+
+            // 3% Growth
+            yesScale += 0.03;
+            yesBtn.style.transform = `scale(${yesScale})`;
+
+            const padding = 30;
+            let newX, newY, overlaps;
+            
+            // Elements to avoid
+            const avoid = [
+                question.getBoundingClientRect(),
+                yesBtn.getBoundingClientRect(),
+                messageDiv.getBoundingClientRect()
+            ];
+
+            for(let i=0; i<50; i++) {
+                newX = Math.random() * (window.innerWidth - noBtn.offsetWidth - padding);
+                newY = Math.random() * (window.innerHeight - noBtn.offsetHeight - padding);
+                
+                const noRect = {
+                    left: newX, right: newX + noBtn.offsetWidth,
+                    top: newY, bottom: newY + noBtn.offsetHeight
+                };
+
+                overlaps = avoid.some(rect => {
+                    return !(noRect.right < rect.left - 20 || noRect.left > rect.right + 20 || 
+                             noRect.bottom < rect.top - 20 || noRect.top > rect.bottom + 20);
+                });
+                if (!overlaps) break;
+            }
+
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        }
+
+        function sayYes() {
+            document.body.innerHTML = '<h1 style="color: #00FF41; margin-top: 40vh;">Excellent choice. ❤️</h1>';
+            setTimeout(() => location.reload(), 3000);
+        }
+    </script>
+</body>
+</html>
             z-index: 5;
         }
 
