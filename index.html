@@ -51,6 +51,7 @@
             font-weight: bold;
             position: absolute;
             touch-action: none;
+            z-index: 10;
         }
         #message {
             margin-top: 80px;
@@ -69,6 +70,7 @@
             padding: 10px 20px;
             border: 1px solid #00FF41;
             background: rgba(0,0,0,0.95);
+            z-index: 5;
         }
         #counterText {
             font-size: 1.4rem;
@@ -100,7 +102,7 @@
 </head>
 <body>
 
-    <audio id="bgMusic" loop>
+    <audio id="bgMusic" loop preload="auto">
         <source src="matrix.mp3" type="audio/mpeg">
     </audio>
 
@@ -153,8 +155,10 @@
 
         function startMusic() {
             if (!audioStarted) {
-                audio.play().catch(() => {});
-                audioStarted = true;
+                audio.volume = 0.5; // Set volume to 50%
+                audio.play().then(() => {
+                    audioStarted = true;
+                }).catch(err => console.log("Audio failed to play:", err));
             }
         }
 
@@ -176,7 +180,7 @@
             yesBtn.style.transform = `scale(${scale})`;
 
             let nX, nY;
-            for(let i=0; i<150; i++) {
+            for(let i=0; i<200; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - 20);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - 20);
                 
@@ -190,7 +194,6 @@
                     return !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
                 };
 
-                // Added check for cR (counterBox) to prevent overlap
                 if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && !overlap(nR, cR) && nY > 80) break;
             }
             noBtn.style.left = nX + 'px';
@@ -210,7 +213,7 @@
             startMusic();
             const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             
-            // Replaces content without reloading the page, keeping the audio alive
+            // Clean transition while keeping the audio player outside mainUI
             mainUI.style.overflowY = "auto";
             mainUI.style.height = "auto";
             mainUI.style.paddingBottom = "50px";
