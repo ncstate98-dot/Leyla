@@ -16,13 +16,34 @@
             height: 100vh;
             width: 100vw;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
+        }
+        /* New Entry Overlay */
+        #entry-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #entryBtn {
+            background: none;
+            border: 2px solid #00FF41;
+            color: #00FF41;
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 0 15px #00FF41;
         }
         #main-ui {
             width: 100%;
             height: 100vh;
-            display: flex;
+            display: none; /* Hidden until entry button is clicked */
             flex-direction: column;
             align-items: center;
             padding-top: 40px;
@@ -102,6 +123,11 @@
 </head>
 <body>
 
+    <div id="entry-screen">
+        <button id="entryBtn" onclick="initSystem()">ENTER SYSTEM</button>
+        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Audio Initialization Required)</p>
+    </div>
+
     <audio id="bgMusic" loop preload="auto">
         <source src="matrix.mp3" type="audio/mpeg">
     </audio>
@@ -126,10 +152,10 @@
         const counterBox = document.getElementById('counterContainer');
         const audio = document.getElementById('bgMusic');
         const mainUI = document.getElementById('main-ui');
+        const entryScreen = document.getElementById('entry-screen');
 
         let scale = 1.0;
         let count = 0;
-        let audioStarted = false;
 
         const story = [
             "Wait, maybe reconsider?",
@@ -153,16 +179,15 @@
             "You're the best part of my day."
         ];
 
-        function startMusic() {
-            if (!audioStarted) {
-                audio.volume = 0.5; // Set volume to 50%
-                audio.play().then(() => {
-                    audioStarted = true;
-                }).catch(err => console.log("Audio failed to play:", err));
-            }
+        function initSystem() {
+            // Start music immediately on button click
+            audio.play().catch(e => console.log("Audio play blocked"));
+            
+            // Hide entry screen and show main UI
+            entryScreen.style.display = "none";
+            mainUI.style.display = "flex";
+            resetNo();
         }
-
-        window.onload = () => { resetNo(); };
 
         function resetNo() {
             const yR = yesBtn.getBoundingClientRect();
@@ -171,7 +196,6 @@
         }
 
         function moveNo(e) {
-            startMusic();
             if (e && e.cancelable) e.preventDefault();
             if (count < story.length) { msg.innerText = story[count]; } 
             else { msg.innerText = "Just take the red pill and click Yes."; }
@@ -210,10 +234,7 @@
         }
 
         function sayYes() {
-            startMusic();
             const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
-            
-            // Clean transition while keeping the audio player outside mainUI
             mainUI.style.overflowY = "auto";
             mainUI.style.height = "auto";
             mainUI.style.paddingBottom = "50px";
@@ -228,7 +249,6 @@
                 <p style="color: #00FF41; font-size: 1rem; font-weight: bold; max-width: 90%; margin-bottom: 20px;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
                 <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem;">(System rebooting in 15 seconds...)</p>
             `;
-            
             for(let i=0; i<40; i++) { setTimeout(createRain, i * 60); }
             setTimeout(() => { window.location.reload(); }, 15000);
         }
