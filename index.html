@@ -62,7 +62,6 @@
         #taunt { margin-top: 30px; height: 20px; font-size: 0.9rem; color: #ff4d4d; font-weight: bold; }
         #message { margin-top: 5px; font-size: 1rem; font-weight: bold; min-height: 80px; padding: 0 25px; max-width: 85%; }
         
-        /* RESTORED COUNTER STYLING */
         #counterContainer {
             position: fixed; bottom: 20px; left: 50%;
             transform: translateX(-50%); padding: 10px 20px;
@@ -80,7 +79,7 @@
 
     <div id="entry-screen">
         <button id="entryBtn" onclick="initSystem()">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Anomaly Tracking: Enabled)</p>
+        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Text Collision Avoidance: ON)</p>
     </div>
 
     <audio id="bgMusic" loop>
@@ -110,12 +109,14 @@
 
     <script>
         const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
         const taunt = document.getElementById('taunt');
         const heartBox = document.getElementById('heart-container');
         const missBox = document.getElementById('miss-container');
         const anomalyVal = document.getElementById('anomaly-value');
         const mainUI = document.getElementById('main-ui');
+        const counterBox = document.getElementById('counterContainer');
         const audio = document.getElementById('bgMusic');
 
         let hitCount = 0;
@@ -143,15 +144,10 @@
             "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
-        function updateAnomalyDisplay() {
-            // Pads the number with zeros (e.g., 0014)
-            anomalyVal.innerText = totalAnomalies.toString().padStart(4, '0');
-        }
-
         function updateTrackers() {
             heartBox.innerHTML = hitHearts.join(" ");
             missBox.innerHTML = missHearts.join(" ");
-            updateAnomalyDisplay();
+            anomalyVal.innerText = totalAnomalies.toString().padStart(4, '0');
         }
 
         function initSystem() {
@@ -171,13 +167,40 @@
         }
 
         function moveNoRandomly() {
-            const pad = 50;
+            const pad = 30;
             let nX, nY;
-            for(let i=0; i<100; i++) {
+            
+            // Get positions of protected elements
+            const msgRect = msg.getBoundingClientRect();
+            const counterRect = counterBox.getBoundingClientRect();
+            const yesRect = yesBtn.getBoundingClientRect();
+            const tauntRect = taunt.getBoundingClientRect();
+
+            for(let i=0; i<200; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                if (nY > 180 && nY < (window.innerHeight - 120)) break;
+                
+                const noRect = {
+                    left: nX - pad,
+                    right: nX + noBtn.offsetWidth + pad,
+                    top: nY - pad,
+                    bottom: nY + noBtn.offsetHeight + pad
+                };
+
+                // Check if new position overlaps any UI text/buttons
+                const overlaps = (r1, r2) => {
+                    return !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+                };
+
+                const isBlocked = overlaps(noRect, msgRect) || 
+                                overlaps(noRect, counterRect) || 
+                                overlaps(noRect, yesRect) ||
+                                overlaps(noRect, tauntRect);
+
+                // Ensure it stays in the central playable area and isn't blocked
+                if (!isBlocked && nY > 180 && nY < (window.innerHeight - 100)) break;
             }
+            
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
             noBtn.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
@@ -186,7 +209,7 @@
         function hitNo(e) {
             if(isGameOver) return;
             e.stopPropagation(); 
-            totalAnomalies++; // Every hit counts as an anomaly
+            totalAnomalies++;
             if (hitCount < story.length) {
                 hitHearts[hitCount] = "💔";
                 updateTrackers();
@@ -201,14 +224,14 @@
         function missedClick(e) {
             if (mainUI.style.display === "flex" && !isGameOver) {
                 if (e.target.id !== 'noBtn' && e.target.id !== 'yesBtn') {
-                    totalAnomalies++; // Every miss counts as an anomaly
-                    missHearts[missCount] = "❌";
-                    missCount++;
+                    totalAnomalies++;
+                    if (missCount < 12) {
+                        missHearts[missCount] = "❌";
+                        missCount++;
+                    }
                     updateTrackers();
-                    
                     taunt.innerText = "haha. missed me.";
                     setTimeout(() => { taunt.innerText = ""; }, 500);
-
                     if(missCount >= 12) endGame(false);
                 }
             }
@@ -218,19 +241,16 @@
             isGameOver = true;
             clearInterval(gameInterval);
             noBtn.style.display = "none";
-            
             if(playerWon) {
                 msg.innerText = "The No button has been neutralized. System breach successful.";
-                document.getElementById('counterContainer').style.borderColor = "#00FF41";
             } else {
                 msg.style.color = "#ff4d4d";
-                msg.innerText = "FATAL ERROR: Too many anomalies. You have been locked out of the choice. You must now hit YES.";
-                document.getElementById('counterContainer').style.borderColor = "#ff4d4d";
+                msg.innerText = "FATAL ERROR: Too many anomalies. Access denied. You must hit YES.";
             }
         }
 
         function resetNo() {
-            const yR = document.getElementById('yesBtn').getBoundingClientRect();
+            const yR = yesBtn.getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
             noBtn.style.top = (yR.bottom + 100) + 'px';
         }
