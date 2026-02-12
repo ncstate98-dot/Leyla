@@ -80,7 +80,7 @@
             text-shadow: 0 0 5px #00FF41;
         }
         .val-photo {
-            width: 110px; /* Made slightly smaller to fit screen */
+            width: 110px;
             height: auto;
             border: 3px solid #00FF41;
             box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
@@ -136,20 +136,31 @@
             "Come on... Really?",
             "This is getting a bit awkward now.",
             "I think someone is trying to be funny, that's awesome 😐",
-            "Ok, me being the gentleman that I am, will respond with a: 'are you fucking with me!?'"
+            "Ok, me being the gentleman that I am, will respond with a: 'are you fucking with me?'"
+        ];
+
+        const loveNotes = [
+            "I'm so glad I met you.",
+            "I love spending time with you.",
+            "I feel lucky to have met you.",
+            "You're my favorite anomaly in the system.",
+            "Life's better with you in it.",
+            "You're the best part of my day."
         ];
 
         async function loadCounter() {
-            const hasBeenHere = localStorage.getItem('leyla_owner_v2'); // New key for the reset
-            const hitType = hasBeenHere ? 'get' : 'hit';
+            const hasBeenHere = localStorage.getItem('leyla_owner_v3'); 
+            const hitType = hasBeenHere ? 'get' : 'update';
+            const valueChange = hasBeenHere ? '' : '?amount=1';
+            
             try {
-                // Using a brand new unique key for the counter
-                const response = await fetch(`https://api.countapi.xyz/${hitType}/leyla-valentine-2026-final/hits`);
+                // Pointing to a fresh namespace to ensure it resets for this test
+                const response = await fetch(`https://api.countapi.xyz/${hitType}/leyla-v3-final/hits${valueChange}`);
                 const data = await response.json();
                 counterText.innerText = data.value.toString().padStart(4, '0');
-                localStorage.setItem('leyla_owner_v2', 'true');
+                if(!hasBeenHere) localStorage.setItem('leyla_owner_v3', 'true');
             } catch (e) {
-                counterText.innerText = "0001"; // Starts at 1 if API fails
+                counterText.innerText = "0001"; 
             }
         }
 
@@ -201,8 +212,9 @@
         }
 
         function sayYes() {
+            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             document.body.innerHTML = "";
-            document.body.style.overflowY = "auto"; // Allow scrolling on Yes screen
+            document.body.style.overflowY = "auto";
             document.body.style.height = "auto";
             document.body.style.paddingBottom = "50px";
             
@@ -210,14 +222,21 @@
             content.style.cssText = "display: flex; flex-direction: column; align-items: center; z-index: 10; padding: 20px; width: 100%;";
             content.innerHTML = `
                 <h1 style="color: #00FF41; font-size: 1.8rem; text-shadow: 0 0 10px #00FF41; margin-top: 20px;">Excellent choice. ❤️</h1>
+                
+                <p style="color: #fff; font-size: 1.2rem; font-style: italic; margin: 10px 0 20px 0; text-shadow: 0 0 5px #00FF41;">
+                    "${randomNote}"
+                </p>
+
                 <div style="display: flex; gap: 8px; margin: 15px 0; justify-content: center; flex-wrap: wrap;">
                     <img src="valentine1.jpg" class="val-photo" style="transform: rotate(-5deg);">
                     <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
                     <img src="valentine3.jpg" class="val-photo" style="transform: rotate(-3deg);">
                 </div>
+                
                 <p style="color: #00FF41; font-size: 1rem; font-weight: bold; max-width: 90%; margin-bottom: 20px;">
                     just like in the matrix, it's almost like you didn't have a choice, haha 😂
                 </p>
+                
                 <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem;">(System rebooting in 15 seconds...)</p>
             `;
             document.body.appendChild(content);
