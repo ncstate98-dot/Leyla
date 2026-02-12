@@ -103,6 +103,10 @@
 </head>
 <body>
 
+    <audio id="bgMusic" loop>
+        <source src="matrix.mp3" type="audio/mpeg">
+    </audio>
+
     <div id="main-ui">
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
         <button id="yesBtn" onclick="sayYes()">Yes</button>
@@ -112,7 +116,7 @@
 
     <div id="counterContainer">
         <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
-        <div id="counterText">0000</div>
+        <div id="counterText">0014</div>
     </div>
 
     <script>
@@ -122,9 +126,11 @@
         const q = document.getElementById('question');
         const counterBox = document.getElementById('counterContainer');
         const counterText = document.getElementById('counterText');
+        const audio = document.getElementById('bgMusic');
 
         let scale = 1.0;
         let count = 0;
+        let audioStarted = false;
 
         const story = [
             "Wait, maybe reconsider?",
@@ -148,21 +154,15 @@
             "You're the best part of my day."
         ];
 
-        async function loadCounter() {
-            // We use a specific, unique key for the final production
-            const key = 'leyla_valentine_production_v1';
-            try {
-                const response = await fetch(`https://api.countapi.xyz/hit/leyla-prod-final/${key}`);
-                const data = await response.json();
-                counterText.innerText = data.value.toString().padStart(4, '0');
-            } catch (e) {
-                // If the API fails, we'll show a "random" high anomaly number to keep the vibe
-                counterText.innerText = "0014"; 
+        // Function to start music on first interaction
+        function startMusic() {
+            if (!audioStarted) {
+                audio.play().catch(e => console.log("Audio blocked until interaction"));
+                audioStarted = true;
             }
         }
 
         window.onload = () => {
-            loadCounter();
             resetNo();
         };
 
@@ -173,6 +173,7 @@
         }
 
         function moveNo(e) {
+            startMusic(); // Unlock audio on hover/touch
             if (e && e.cancelable) e.preventDefault();
             if (count < story.length) { msg.innerText = story[count]; } 
             else { msg.innerText = "Just take the red pill and click Yes."; }
@@ -209,6 +210,7 @@
         }
 
         function sayYes() {
+            startMusic(); // Ensure music plays if they click Yes immediately
             const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             document.body.innerHTML = "";
             document.body.style.overflowY = "auto";
