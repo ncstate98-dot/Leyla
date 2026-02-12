@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Matrix Valentine Game</title>
     <style>
-        /* PREVENT BLUE HIGHLIGHTING */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -29,92 +28,49 @@
             align-items: center;
         }
         #entry-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            z-index: 99999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
         #entryBtn {
-            background: #000;
-            border: 2px solid #00FF41;
-            color: #00FF41;
-            padding: 25px 50px;
-            font-size: 1.5rem;
-            cursor: pointer;
+            background: #000; border: 2px solid #00FF41; color: #00FF41;
+            padding: 25px 50px; font-size: 1.5rem; cursor: pointer;
             box-shadow: 0 0 20px #00FF41;
         }
         #main-ui {
-            width: 100%;
-            height: 100vh;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding-top: 10px;
-            position: relative;
-            z-index: 5;
+            width: 100%; height: 100vh; display: none;
+            flex-direction: column; align-items: center;
+            padding-top: 10px; position: relative; z-index: 5;
         }
         .tracker-label { font-size: 0.6rem; opacity: 0.7; margin: 2px 0; letter-spacing: 1px; }
         #heart-container, #miss-container {
-            display: flex;
-            gap: 3px;
-            font-size: 1rem;
-            flex-wrap: wrap;
-            justify-content: center;
-            padding: 0 10px;
-            min-height: 25px;
+            display: flex; gap: 3px; font-size: 1rem; flex-wrap: wrap;
+            justify-content: center; padding: 0 10px; min-height: 25px;
         }
         #question { font-size: 1.2rem; margin: 15px 0; padding: 0 15px; }
         #yesBtn {
-            background-color: #28a745;
-            color: white;
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            z-index: 50;
-            cursor: pointer;
+            background-color: #28a745; color: white; padding: 12px 30px;
+            font-size: 1.1rem; border: none; border-radius: 8px;
+            font-weight: bold; z-index: 50; cursor: pointer;
         }
         #noBtn {
-            background-color: #dc3545;
-            color: white;
-            padding: 10px 22px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            position: absolute;
-            z-index: 60;
+            background-color: #dc3545; color: white; padding: 10px 22px;
+            font-size: 1rem; border: none; border-radius: 8px;
+            font-weight: bold; position: absolute; z-index: 60;
             transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-        #taunt {
-            margin-top: 30px;
-            height: 20px;
-            font-size: 0.9rem;
-            color: #ff4d4d;
-            font-weight: bold;
-        }
-        #message {
-            margin-top: 5px;
-            font-size: 1rem;
-            font-weight: bold;
-            min-height: 80px;
-            padding: 0 25px;
-            max-width: 85%;
-        }
+        #taunt { margin-top: 30px; height: 20px; font-size: 0.9rem; color: #ff4d4d; font-weight: bold; }
+        #message { margin-top: 5px; font-size: 1rem; font-weight: bold; min-height: 80px; padding: 0 25px; max-width: 85%; }
+        
+        /* RESTORED COUNTER STYLING */
         #counterContainer {
-            position: fixed;
-            bottom: 15px; 
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 15px;
-            border: 1px solid #00FF41;
-            background: rgba(0,0,0,0.9);
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%); padding: 10px 20px;
+            border: 1px solid #00FF41; background: rgba(0,0,0,0.9);
+            z-index: 5;
         }
+        #anomaly-value { font-size: 1.4rem; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 5px #00FF41; }
+        
         .val-photo { width: 105px; border: 2px solid #00FF41; border-radius: 4px; }
         @keyframes rain { 0% { transform: translateY(-100%); opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
         .matrix-bit { position: fixed; top: -20px; color: #00FF41; animation: rain linear infinite; }
@@ -124,7 +80,7 @@
 
     <div id="entry-screen">
         <button id="entryBtn" onclick="initSystem()">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Selection Prevention Active)</p>
+        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Anomaly Tracking: Enabled)</p>
     </div>
 
     <audio id="bgMusic" loop>
@@ -135,7 +91,7 @@
         <div class="tracker-label">BYPASS PROGRESS</div>
         <div id="heart-container"></div>
         
-        <div class="tracker-label" style="margin-top: 5px; color: #00bcff;">ANOMALY TRACKER</div>
+        <div class="tracker-label" style="margin-top: 5px; color: #00bcff;">MISS TRACKER</div>
         <div id="miss-container"></div>
 
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
@@ -147,7 +103,8 @@
         <button id="noBtn" onmousedown="hitNo(event)">No</button>
         
         <div id="counterContainer">
-            <div id="final-stats" style="font-size: 1.1rem; font-weight: bold; letter-spacing: 2px;">SECURE CONNECTION</div>
+            <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
+            <div id="anomaly-value">0000</div>
         </div>
     </div>
 
@@ -157,17 +114,19 @@
         const taunt = document.getElementById('taunt');
         const heartBox = document.getElementById('heart-container');
         const missBox = document.getElementById('miss-container');
+        const anomalyVal = document.getElementById('anomaly-value');
         const mainUI = document.getElementById('main-ui');
         const audio = document.getElementById('bgMusic');
 
         let hitCount = 0;
         let missCount = 0;
+        let totalAnomalies = 0;
         let gameSpeed = 1600; 
         let gameInterval;
         let isGameOver = false;
 
         let hitHearts = Array(12).fill("❤️");
-        let missHearts = Array(12).fill("🔹"); // Using blue diamonds for miss tracker
+        let missHearts = Array(12).fill("🔹");
 
         const story = [
             "Wait, maybe reconsider?",
@@ -184,9 +143,15 @@
             "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
+        function updateAnomalyDisplay() {
+            // Pads the number with zeros (e.g., 0014)
+            anomalyVal.innerText = totalAnomalies.toString().padStart(4, '0');
+        }
+
         function updateTrackers() {
             heartBox.innerHTML = hitHearts.join(" ");
             missBox.innerHTML = missHearts.join(" ");
+            updateAnomalyDisplay();
         }
 
         function initSystem() {
@@ -211,7 +176,7 @@
             for(let i=0; i<100; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                if (nY > 180 && nY < (window.innerHeight - 100)) break;
+                if (nY > 180 && nY < (window.innerHeight - 120)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
@@ -221,6 +186,7 @@
         function hitNo(e) {
             if(isGameOver) return;
             e.stopPropagation(); 
+            totalAnomalies++; // Every hit counts as an anomaly
             if (hitCount < story.length) {
                 hitHearts[hitCount] = "💔";
                 updateTrackers();
@@ -235,6 +201,7 @@
         function missedClick(e) {
             if (mainUI.style.display === "flex" && !isGameOver) {
                 if (e.target.id !== 'noBtn' && e.target.id !== 'yesBtn') {
+                    totalAnomalies++; // Every miss counts as an anomaly
                     missHearts[missCount] = "❌";
                     missCount++;
                     updateTrackers();
@@ -254,10 +221,11 @@
             
             if(playerWon) {
                 msg.innerText = "The No button has been neutralized. System breach successful.";
+                document.getElementById('counterContainer').style.borderColor = "#00FF41";
             } else {
                 msg.style.color = "#ff4d4d";
                 msg.innerText = "FATAL ERROR: Too many anomalies. You have been locked out of the choice. You must now hit YES.";
-                document.getElementById('final-stats').innerText = "SYSTEM FAILURE";
+                document.getElementById('counterContainer').style.borderColor = "#ff4d4d";
             }
         }
 
