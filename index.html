@@ -76,8 +76,9 @@
             border-radius: 8px;
             font-weight: bold;
             position: absolute;
-            transition: all 0.15s ease-out;
             z-index: 10;
+            /* CURVE LOGIC: Using a cubic-bezier for a non-linear, swooping path */
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
         #message {
             margin-top: 60px;
@@ -120,7 +121,7 @@
 
     <div id="entry-screen">
         <button id="entryBtn" onclick="initSystem()">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Anomaly Tracking Enabled)</p>
+        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Curve Tracking Enabled)</p>
     </div>
 
     <audio id="bgMusic" loop>
@@ -195,7 +196,7 @@
         }
 
         function moveNoRandomly() {
-            const pad = 40;
+            const pad = 50;
             let nX, nY;
             
             for(let i=0; i<150; i++) {
@@ -209,7 +210,7 @@
 
                 const isOverlap = (x, y) => {
                     const r = {left: x, right: x + noBtn.offsetWidth, top: y, bottom: y + noBtn.offsetHeight};
-                    const check = (r2) => !(r.right < r2.left-30 || r.left > r2.right+30 || r.bottom < r2.top-30 || r.top > r2.bottom+30);
+                    const check = (r2) => !(r.right < r2.left-40 || r.left > r2.right+40 || r.bottom < r2.top-40 || r.top > r2.bottom+40);
                     return check(yR) || check(qR) || check(mR) || check(cR);
                 };
 
@@ -217,4 +218,52 @@
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
+            
+            // Randomly rotate slightly for more "organic" feel
+            const rotation = (Math.random() * 20 - 10); 
+            noBtn.style.transform = `rotate(${rotation}deg)`;
         }
+
+        function hitNo(e) {
+            e.stopPropagation(); 
+            if (hitCount < story.length) {
+                hearts[hitCount] = "💔";
+                updateHearts();
+                currentStatus = story[hitCount];
+                msg.innerText = currentStatus;
+                hitCount++;
+                // Speed ramp
+                gameSpeed = Math.max(500, gameSpeed - 70);
+                startGame();
+            }
+
+            if (hitCount === story.length) {
+                noBtn.style.display = "none";
+                currentStatus = "you win (sad face)";
+                msg.innerText = currentStatus;
+                clearInterval(gameInterval);
+            }
+        }
+
+        function missedClick(e) {
+            if (mainUI.style.display === "flex" && hitCount < story.length) {
+                if (e.target.tagName !== 'BUTTON') {
+                    msg.innerText = "haha. missed me.";
+                    setTimeout(() => {
+                        msg.innerText = currentStatus;
+                    }, 500);
+                }
+            }
+        }
+
+        function resetNo() {
+            const yR = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
+            noBtn.style.top = (yR.bottom + 60) + 'px';
+        }
+
+        function sayYes() {
+            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
+            mainUI.innerHTML = `
+                <h1 style="color: #00FF41; font-size: 1.8rem; margin-top: 20px;">Excellent choice. ❤️</h1>
+                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold; text-shadow: 0 0 5px #00FF41;">${randomNote}</p>
