@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Matrix Valentine Game</title>
     <style>
+        /* PREVENT BLUE HIGHLIGHTING */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             background-color: #0b0b0b;
             color: #00FF41;
@@ -23,7 +32,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 99999; /* Max Priority */
+            z-index: 99999;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -36,9 +45,7 @@
             padding: 25px 50px;
             font-size: 1.5rem;
             cursor: pointer;
-            font-family: 'Courier New', monospace;
             box-shadow: 0 0 20px #00FF41;
-            z-index: 100000;
         }
         #main-ui {
             width: 100%;
@@ -46,25 +53,26 @@
             display: none;
             flex-direction: column;
             align-items: center;
-            padding-top: 20px;
+            padding-top: 10px;
             position: relative;
             z-index: 5;
         }
-        #heart-container {
+        .tracker-label { font-size: 0.6rem; opacity: 0.7; margin: 2px 0; letter-spacing: 1px; }
+        #heart-container, #miss-container {
             display: flex;
-            gap: 5px;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
+            gap: 3px;
+            font-size: 1rem;
             flex-wrap: wrap;
             justify-content: center;
             padding: 0 10px;
+            min-height: 25px;
         }
-        #question { font-size: 1.3rem; margin-bottom: 20px; padding: 0 15px; }
+        #question { font-size: 1.2rem; margin: 15px 0; padding: 0 15px; }
         #yesBtn {
             background-color: #28a745;
             color: white;
-            padding: 15px 35px;
-            font-size: 1.2rem;
+            padding: 12px 30px;
+            font-size: 1.1rem;
             border: none;
             border-radius: 8px;
             font-weight: bold;
@@ -74,8 +82,8 @@
         #noBtn {
             background-color: #dc3545;
             color: white;
-            padding: 12px 25px;
-            font-size: 1.1rem;
+            padding: 10px 22px;
+            font-size: 1rem;
             border: none;
             border-radius: 8px;
             font-weight: bold;
@@ -84,12 +92,11 @@
             transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
         #taunt {
-            margin-top: 40px;
+            margin-top: 30px;
             height: 20px;
             font-size: 0.9rem;
             color: #ff4d4d;
             font-weight: bold;
-            text-transform: uppercase;
         }
         #message {
             margin-top: 5px;
@@ -98,41 +105,26 @@
             min-height: 80px;
             padding: 0 25px;
             max-width: 85%;
-            line-height: 1.4;
         }
         #counterContainer {
             position: fixed;
-            bottom: 20px; 
+            bottom: 15px; 
             left: 50%;
             transform: translateX(-50%);
-            padding: 10px 20px;
+            padding: 8px 15px;
             border: 1px solid #00FF41;
             background: rgba(0,0,0,0.9);
-            z-index: 5;
         }
-        .val-photo {
-            width: 110px;
-            height: auto;
-            border: 3px solid #00FF41;
-            border-radius: 4px;
-        }
-        @keyframes rain {
-            0% { transform: translateY(-100%); opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
-        }
-        .matrix-bit {
-            position: fixed;
-            top: -20px;
-            color: #00FF41;
-            animation: rain linear infinite;
-        }
+        .val-photo { width: 105px; border: 2px solid #00FF41; border-radius: 4px; }
+        @keyframes rain { 0% { transform: translateY(-100%); opacity: 1; } 100% { transform: translateY(100vh); opacity: 0; } }
+        .matrix-bit { position: fixed; top: -20px; color: #00FF41; animation: rain linear infinite; }
     </style>
 </head>
 <body>
 
     <div id="entry-screen">
         <button id="entryBtn" onclick="initSystem()">INITIALIZE SYSTEM</button>
-        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(System Pacing: Optimal)</p>
+        <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(Selection Prevention Active)</p>
     </div>
 
     <audio id="bgMusic" loop>
@@ -140,7 +132,12 @@
     </audio>
 
     <div id="main-ui">
+        <div class="tracker-label">BYPASS PROGRESS</div>
         <div id="heart-container"></div>
+        
+        <div class="tracker-label" style="margin-top: 5px; color: #00bcff;">ANOMALY TRACKER</div>
+        <div id="miss-container"></div>
+
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
         <button id="yesBtn" onclick="sayYes()">Yes</button>
         
@@ -150,24 +147,27 @@
         <button id="noBtn" onmousedown="hitNo(event)">No</button>
         
         <div id="counterContainer">
-            <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
-            <div style="font-size: 1.4rem; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 5px #00FF41;">0014</div>
+            <div id="final-stats" style="font-size: 1.1rem; font-weight: bold; letter-spacing: 2px;">SECURE CONNECTION</div>
         </div>
     </div>
 
     <script>
         const noBtn = document.getElementById('noBtn');
-        const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
         const taunt = document.getElementById('taunt');
         const heartBox = document.getElementById('heart-container');
-        const audio = document.getElementById('bgMusic');
+        const missBox = document.getElementById('miss-container');
         const mainUI = document.getElementById('main-ui');
+        const audio = document.getElementById('bgMusic');
 
         let hitCount = 0;
+        let missCount = 0;
         let gameSpeed = 1600; 
         let gameInterval;
-        let hearts = Array(12).fill("❤️");
+        let isGameOver = false;
+
+        let hitHearts = Array(12).fill("❤️");
+        let missHearts = Array(12).fill("🔹"); // Using blue diamonds for miss tracker
 
         const story = [
             "Wait, maybe reconsider?",
@@ -184,21 +184,23 @@
             "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
-        function updateHearts() {
-            heartBox.innerHTML = hearts.join(" ");
+        function updateTrackers() {
+            heartBox.innerHTML = hitHearts.join(" ");
+            missBox.innerHTML = missHearts.join(" ");
         }
 
         function initSystem() {
             audio.play().catch(() => {});
             document.getElementById('entry-screen').style.display = "none";
             mainUI.style.display = "flex";
-            updateHearts();
+            updateTrackers();
             resetNo();
             startGame();
             document.addEventListener('mousedown', missedClick);
         }
 
         function startGame() {
+            if(isGameOver) return;
             clearInterval(gameInterval);
             gameInterval = setInterval(moveNoRandomly, gameSpeed);
         }
@@ -206,76 +208,77 @@
         function moveNoRandomly() {
             const pad = 50;
             let nX, nY;
-            
-            for(let i=0; i<150; i++) {
+            for(let i=0; i<100; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                
-                const yR = yesBtn.getBoundingClientRect();
-                const qR = document.getElementById('question').getBoundingClientRect();
-                const mR = msg.getBoundingClientRect();
-                const cR = document.getElementById('counterContainer').getBoundingClientRect();
-
-                const isOverlap = (x, y) => {
-                    const r = {left: x, right: x + noBtn.offsetWidth, top: y, bottom: y + noBtn.offsetHeight};
-                    const check = (r2) => !(r.right < r2.left-40 || r.left > r2.right+40 || r.bottom < r2.top-40 || r.top > r2.bottom+40);
-                    return check(yR) || check(qR) || check(mR) || check(cR);
-                };
-
-                if (!isOverlap(nX, nY) && nY > 150 && nY < (window.innerHeight - 120)) break;
+                if (nY > 180 && nY < (window.innerHeight - 100)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
-            const rotation = (Math.random() * 20 - 10); 
-            noBtn.style.transform = `rotate(${rotation}deg)`;
+            noBtn.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
         }
 
         function hitNo(e) {
+            if(isGameOver) return;
             e.stopPropagation(); 
             if (hitCount < story.length) {
-                hearts[hitCount] = "💔";
-                updateHearts();
+                hitHearts[hitCount] = "💔";
+                updateTrackers();
                 msg.innerText = story[hitCount];
                 hitCount++;
                 gameSpeed = Math.max(500, gameSpeed - 100);
                 startGame();
             }
-
-            if (hitCount === story.length) {
-                noBtn.style.display = "none";
-                clearInterval(gameInterval);
-            }
+            if (hitCount === story.length) endGame(true);
         }
 
         function missedClick(e) {
-            if (mainUI.style.display === "flex" && hitCount < story.length) {
+            if (mainUI.style.display === "flex" && !isGameOver) {
                 if (e.target.id !== 'noBtn' && e.target.id !== 'yesBtn') {
+                    missHearts[missCount] = "❌";
+                    missCount++;
+                    updateTrackers();
+                    
                     taunt.innerText = "haha. missed me.";
-                    setTimeout(() => {
-                        taunt.innerText = "";
-                    }, 500);
+                    setTimeout(() => { taunt.innerText = ""; }, 500);
+
+                    if(missCount >= 12) endGame(false);
                 }
             }
         }
 
+        function endGame(playerWon) {
+            isGameOver = true;
+            clearInterval(gameInterval);
+            noBtn.style.display = "none";
+            
+            if(playerWon) {
+                msg.innerText = "The No button has been neutralized. System breach successful.";
+            } else {
+                msg.style.color = "#ff4d4d";
+                msg.innerText = "FATAL ERROR: Too many anomalies. You have been locked out of the choice. You must now hit YES.";
+                document.getElementById('final-stats').innerText = "SYSTEM FAILURE";
+            }
+        }
+
         function resetNo() {
-            const yR = yesBtn.getBoundingClientRect();
+            const yR = document.getElementById('yesBtn').getBoundingClientRect();
             noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
-            noBtn.style.top = (yR.bottom + 80) + 'px';
+            noBtn.style.top = (yR.bottom + 100) + 'px';
         }
 
         function sayYes() {
             document.removeEventListener('mousedown', missedClick);
             mainUI.innerHTML = `
                 <h1 style="color: #00FF41; font-size: 1.8rem; margin-top: 20px;">Excellent choice. ❤️</h1>
-                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold;">I feel lucky to have met you.</p>
+                <p style="color: #00FF41; font-size: 1.1rem; margin: 10px 0; font-weight: bold;">I feel lucky to have met you.</p>
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                     <img src="valentine1.jpg" class="val-photo" style="transform: rotate(-5deg);">
                     <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
                     <img src="valentine3.jpg" class="val-photo" style="transform: rotate(-3deg);">
                 </div>
-                <p style="color: #00FF41; font-size: 1rem; font-weight: bold; margin-top: 20px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
-                <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem; margin-top: 25px;">(System rebooting in 15 seconds...)</p>
+                <p style="color: #00FF41; font-size: 0.9rem; font-weight: bold; margin-top: 15px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
+                <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem; margin-top: 20px;">(System rebooting in 15 seconds...)</p>
             `;
             for(let i=0; i<40; i++) { setTimeout(createRain, i * 60); }
             setTimeout(() => { window.location.reload(); }, 15000);
@@ -287,7 +290,6 @@
             bit.innerText = Math.random() > 0.5 ? '1' : '0';
             bit.style.left = Math.random() * 100 + 'vw';
             bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
-            bit.style.zIndex = "1";
             document.body.appendChild(bit);
         }
     </script>
