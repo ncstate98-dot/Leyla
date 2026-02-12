@@ -53,7 +53,10 @@
             display: flex;
             gap: 5px;
             margin-bottom: 15px;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0 10px;
         }
         #question { font-size: 1.3rem; margin-bottom: 20px; padding: 0 15px; }
         #yesBtn {
@@ -79,12 +82,11 @@
             z-index: 60;
             transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
-        /* New Taunt Zone */
         #taunt {
             margin-top: 40px;
             height: 20px;
             font-size: 0.9rem;
-            color: #ff4d4d; /* Reddish for the taunt */
+            color: #ff4d4d;
             font-weight: bold;
             text-transform: uppercase;
         }
@@ -92,7 +94,7 @@
             margin-top: 5px;
             font-size: 1rem;
             font-weight: bold;
-            min-height: 60px;
+            min-height: 80px;
             padding: 0 25px;
             max-width: 85%;
             line-height: 1.4;
@@ -141,7 +143,8 @@
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
         <button id="yesBtn">Yes</button>
         
-        <div id="taunt"></div> <div id="message">System Ready...</div>
+        <div id="taunt"></div>
+        <div id="message">System Ready...</div>
         
         <button id="noBtn">No</button>
         
@@ -163,9 +166,11 @@
         const mainUI = document.getElementById('main-ui');
 
         let hitCount = 0;
-        let gameSpeed = 1600; // Even slower start
+        let gameSpeed = 1600; 
         let gameInterval;
-        let hearts = ["❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️"];
+        
+        // 12 Hearts for 12 Messages
+        let hearts = Array(12).fill("❤️");
 
         const story = [
             "Wait, maybe reconsider?",
@@ -177,11 +182,13 @@
             "Come on... Really?",
             "This is getting a bit awkward now.",
             "I think someone is trying to be funny, that's awesome 😐",
-            "Ok, me being the gentleman that I am, will respond with a: 'are you fucking with me?'"
+            "Being the gentleman that I am, I'll only ask once: Are you messing with me right now?",
+            "The system is failing. The 'No' button is losing power.",
+            "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
         function updateHearts() {
-            heartBox.innerHTML = hearts.join("");
+            heartBox.innerHTML = hearts.join(" ");
         }
 
         entryBtn.onclick = function(e) {
@@ -235,60 +242,6 @@
                 updateHearts();
                 msg.innerText = story[hitCount];
                 hitCount++;
-                gameSpeed = Math.max(600, gameSpeed - 90);
-                startGame();
-            }
-
-            if (hitCount === story.length) {
-                noBtn.style.display = "none";
-                msg.innerText = "you win (sad face)";
-                clearInterval(gameInterval);
-            }
-        };
-
-        function missedClick(e) {
-            if (mainUI.style.display === "flex" && hitCount < story.length) {
-                if (e.target.id !== 'noBtn' && e.target.id !== 'yesBtn' && e.target.id !== 'entryBtn') {
-                    taunt.innerText = "haha. missed me.";
-                    setTimeout(() => {
-                        taunt.innerText = "";
-                    }, 500);
-                }
-            }
-        }
-
-        function resetNo() {
-            const yR = yesBtn.getBoundingClientRect();
-            noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
-            noBtn.style.top = (yR.bottom + 80) + 'px';
-        }
-
-        yesBtn.onclick = function() {
-            document.removeEventListener('mousedown', missedClick);
-            mainUI.innerHTML = `
-                <h1 style="color: #00FF41; font-size: 1.8rem; margin-top: 20px;">Excellent choice. ❤️</h1>
-                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold;">I feel lucky to have met you.</p>
-                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                    <img src="valentine1.jpg" class="val-photo" style="transform: rotate(-5deg);">
-                    <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
-                    <img src="valentine3.jpg" class="val-photo" style="transform: rotate(-3deg);">
-                </div>
-                <p style="color: #00FF41; font-size: 1rem; font-weight: bold; margin-top: 20px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
-                <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem; margin-top: 15px;">(System rebooting in 15 seconds...)</p>
-            `;
-            for(let i=0; i<40; i++) { setTimeout(createRain, i * 60); }
-            setTimeout(() => { window.location.reload(); }, 15000);
-        };
-
-        function createRain() {
-            const bit = document.createElement('div');
-            bit.className = 'matrix-bit';
-            bit.innerText = Math.random() > 0.5 ? '1' : '0';
-            bit.style.left = Math.random() * 100 + 'vw';
-            bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
-            bit.style.zIndex = "1";
-            document.body.appendChild(bit);
-        }
-    </script>
-</body>
-</html>
+                
+                // Ramp up speed as we get closer to the end
+                gameSpeed = Math.max(500, gameSpeed -
