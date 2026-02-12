@@ -76,7 +76,7 @@
             border-radius: 8px;
             font-weight: bold;
             position: absolute;
-            transition: all 0.15s ease-out; /* Smoother slide */
+            transition: all 0.15s ease-out;
             z-index: 10;
         }
         #message {
@@ -149,9 +149,10 @@
         const mainUI = document.getElementById('main-ui');
 
         let hitCount = 0;
-        let gameSpeed = 1200; // Slowed down significantly
+        let gameSpeed = 1200; 
         let gameInterval;
         let hearts = ["❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️"];
+        let currentStatus = "System Ready...";
 
         const story = [
             "Wait, maybe reconsider?",
@@ -212,29 +213,8 @@
                     return check(yR) || check(qR) || check(mR) || check(cR);
                 };
 
-                // Added vertical safety margins
                 if (!isOverlap(nX, nY) && nY > 120 && nY < (window.innerHeight - 120)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
         }
-
-        function hitNo(e) {
-            e.stopPropagation(); 
-            if (hitCount < story.length) {
-                hearts[hitCount] = "💔";
-                updateHearts();
-                msg.innerText = story[hitCount];
-                hitCount++;
-                gameSpeed = Math.max(400, gameSpeed - 80); // Gentler speed ramp
-                startGame();
-            }
-
-            if (hitCount === story.length) {
-                noBtn.style.display = "none";
-                msg.innerText = "you win (sad face)";
-                clearInterval(gameInterval);
-            }
-        }
-
-        function missedClick(e)
