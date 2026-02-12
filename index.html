@@ -87,7 +87,7 @@
             border-radius: 4px;
         }
         @keyframes rain {
-            0% { transform: translateY(-100%); opacity: 1; }
+            0 { transform: translateY(-100%); opacity: 1; }
             100% { transform: translateY(100vh); opacity: 0; }
         }
         .matrix-bit {
@@ -124,8 +124,6 @@
         const yesBtn = document.getElementById('yesBtn');
         const msg = document.getElementById('message');
         const q = document.getElementById('question');
-        const counterBox = document.getElementById('counterContainer');
-        const counterText = document.getElementById('counterText');
         const audio = document.getElementById('bgMusic');
 
         let scale = 1.0;
@@ -154,17 +152,14 @@
             "You're the best part of my day."
         ];
 
-        // Function to start music on first interaction
         function startMusic() {
             if (!audioStarted) {
-                audio.play().catch(e => console.log("Audio blocked until interaction"));
+                audio.play().catch(() => {});
                 audioStarted = true;
             }
         }
 
-        window.onload = () => {
-            resetNo();
-        };
+        window.onload = () => { resetNo(); };
 
         function resetNo() {
             const yR = yesBtn.getBoundingClientRect();
@@ -173,7 +168,7 @@
         }
 
         function moveNo(e) {
-            startMusic(); // Unlock audio on hover/touch
+            startMusic();
             if (e && e.cancelable) e.preventDefault();
             if (count < story.length) { msg.innerText = story[count]; } 
             else { msg.innerText = "Just take the red pill and click Yes."; }
@@ -189,12 +184,8 @@
                 const yR = yesBtn.getBoundingClientRect();
                 const qR = q.getBoundingClientRect();
                 const mR = msg.getBoundingClientRect();
-                const cR = counterBox.getBoundingClientRect();
-                const overlap = (r1, r2) => {
-                    if (r2.height === 0) return false;
-                    return !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
-                };
-                if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && !overlap(nR, cR) && nY > 80) break;
+                const overlap = (r1, r2) => !(r1.right < r2.left - 20 || r1.left > r2.right + 20 || r1.bottom < r2.top - 20 || r1.top > r2.bottom + 20);
+                if (!overlap(nR, yR) && !overlap(nR, qR) && !overlap(nR, mR) && nY > 80) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
@@ -210,7 +201,7 @@
         }
 
         function sayYes() {
-            startMusic(); // Ensure music plays if they click Yes immediately
+            startMusic();
             const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             document.body.innerHTML = "";
             document.body.style.overflowY = "auto";
