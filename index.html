@@ -86,15 +86,17 @@
             min-height: 60px;
             padding: 0 25px;
             max-width: 85%;
+            line-height: 1.4;
         }
         #counterContainer {
             position: fixed;
             bottom: 20px; 
             left: 50%;
             transform: translateX(-50%);
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: 1px solid #00FF41;
             background: rgba(0,0,0,0.9);
+            z-index: 5;
         }
         .val-photo {
             width: 110px;
@@ -114,7 +116,7 @@
         }
     </style>
 </head>
-<body onclick="missedClick(event)">
+<body onmousedown="missedClick(event)">
 
     <div id="entry-screen">
         <button id="entryBtn" onclick="initSystem()">INITIALIZE GAME</button>
@@ -130,10 +132,11 @@
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
         <button id="yesBtn" onclick="sayYes()">Yes</button>
         <div id="message">System Ready...</div>
-        <button id="noBtn" onclick="hitNo(event)">No</button>
+        <button id="noBtn" onmousedown="hitNo(event)">No</button>
         
         <div id="counterContainer">
-            <div style="font-size: 1.2rem; font-weight: bold; letter-spacing: 4px;">0014</div>
+            <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
+            <div style="font-size: 1.4rem; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 5px #00FF41;">0014</div>
         </div>
     </div>
 
@@ -146,7 +149,7 @@
         const mainUI = document.getElementById('main-ui');
 
         let hitCount = 0;
-        let gameSpeed = 600; // Starting beat speed in ms
+        let gameSpeed = 900; // Slowed by 1/3 from 600ms
         let gameInterval;
         let hearts = ["❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️","❤️"];
 
@@ -161,6 +164,15 @@
             "This is getting a bit awkward now.",
             "I think someone is trying to be funny, that's awesome 😐",
             "Ok, me being the gentleman that I am, will respond with a: 'are you fucking with me?'"
+        ];
+
+        const loveNotes = [
+            "I'm so glad I met you.",
+            "I love spending time with you.",
+            "I feel lucky to have met you.",
+            "You're my favorite anomaly in the system.",
+            "Life's better with you in it.",
+            "You're the best part of my day."
         ];
 
         function updateHearts() {
@@ -185,8 +197,7 @@
             const pad = 30;
             let nX, nY;
             
-            // Generate random spot that doesn't overlap text or Yes button
-            for(let i=0; i<100; i++) {
+            for(let i=0; i<150; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
                 
@@ -197,24 +208,24 @@
 
                 const isOverlap = (x, y) => {
                     const r = {left: x, right: x + noBtn.offsetWidth, top: y, bottom: y + noBtn.offsetHeight};
-                    const check = (r2) => !(r.right < r2.left-20 || r.left > r2.right+20 || r.bottom < r2.top-20 || r.top > r2.bottom+20);
+                    const check = (r2) => !(r.right < r2.left-25 || r.left > r2.right+25 || r.bottom < r2.top-25 || r.top > r2.bottom+25);
                     return check(yR) || check(qR) || check(mR) || check(cR);
                 };
 
-                if (!isOverlap(nX, nY) && nY > 100) break;
+                if (!isOverlap(nX, nY) && nY > 100 && nY < (window.innerHeight - 100)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
         }
 
         function hitNo(e) {
-            e.stopPropagation(); // Prevents "missed click" from firing
+            e.stopPropagation(); 
             if (hitCount < story.length) {
                 hearts[hitCount] = "💔";
                 updateHearts();
                 msg.innerText = story[hitCount];
                 hitCount++;
-                gameSpeed -= 50; // Get faster!
+                gameSpeed = Math.max(300, gameSpeed - 60); // Gets faster but caps at 300ms
                 startGame();
             }
 
@@ -226,8 +237,11 @@
         }
 
         function missedClick(e) {
+            // Only trigger if game is active and not clicking a button
             if (mainUI.style.display === "flex" && hitCount < story.length) {
-                msg.innerText = "haha. missed me.";
+                if (e.target.tagName !== 'BUTTON') {
+                    msg.innerText = "haha. missed me.";
+                }
             }
         }
 
@@ -238,15 +252,17 @@
         }
 
         function sayYes() {
+            const randomNote = loveNotes[Math.floor(Math.random() * loveNotes.length)];
             mainUI.innerHTML = `
                 <h1 style="color: #00FF41; font-size: 1.8rem; margin-top: 20px;">Excellent choice. ❤️</h1>
-                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold;">I'm so glad I met you.</p>
+                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold; text-shadow: 0 0 5px #00FF41;">${randomNote}</p>
                 <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                     <img src="valentine1.jpg" class="val-photo" style="transform: rotate(-5deg);">
                     <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
                     <img src="valentine3.jpg" class="val-photo" style="transform: rotate(-3deg);">
                 </div>
-                <p style="color: #00FF41; font-size: 1rem; font-weight: bold; margin-top: 20px;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
+                <p style="color: #00FF41; font-size: 1rem; font-weight: bold; margin-top: 20px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
+                <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem; margin-top: 15px;">(System rebooting in 15 seconds...)</p>
             `;
             for(let i=0; i<40; i++) { setTimeout(createRain, i * 60); }
             setTimeout(() => { window.location.reload(); }, 15000);
@@ -258,6 +274,7 @@
             bit.innerText = Math.random() > 0.5 ? '1' : '0';
             bit.style.left = Math.random() * 100 + 'vw';
             bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            bit.style.zIndex = "1";
             document.body.appendChild(bit);
         }
     </script>
