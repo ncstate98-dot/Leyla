@@ -23,7 +23,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: #000;
-            z-index: 9999;
+            z-index: 99999; /* Max Priority */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -38,6 +38,7 @@
             cursor: pointer;
             font-family: 'Courier New', monospace;
             box-shadow: 0 0 20px #00FF41;
+            z-index: 100000;
         }
         #main-ui {
             width: 100%;
@@ -130,7 +131,7 @@
 <body>
 
     <div id="entry-screen">
-        <button id="entryBtn">INITIALIZE SYSTEM</button>
+        <button id="entryBtn" onclick="initSystem()">INITIALIZE SYSTEM</button>
         <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.7;">(System Pacing: Optimal)</p>
     </div>
 
@@ -141,12 +142,12 @@
     <div id="main-ui">
         <div id="heart-container"></div>
         <h1 id="question">hi Leyla ❤️, will you be my Valentine?</h1>
-        <button id="yesBtn">Yes</button>
+        <button id="yesBtn" onclick="sayYes()">Yes</button>
         
         <div id="taunt"></div>
         <div id="message">System Ready...</div>
         
-        <button id="noBtn">No</button>
+        <button id="noBtn" onmousedown="hitNo(event)">No</button>
         
         <div id="counterContainer">
             <p style="font-size: 0.6rem; margin: 0 0 5px 0; letter-spacing: 1px; opacity: 0.8;">TOTAL ANOMALIES DETECTED:</p>
@@ -155,5 +156,140 @@
     </div>
 
     <script>
-        const entryBtn = document.getElementById('entryBtn');
-        const entryScreen =
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const msg = document.getElementById('message');
+        const taunt = document.getElementById('taunt');
+        const heartBox = document.getElementById('heart-container');
+        const audio = document.getElementById('bgMusic');
+        const mainUI = document.getElementById('main-ui');
+
+        let hitCount = 0;
+        let gameSpeed = 1600; 
+        let gameInterval;
+        let hearts = Array(12).fill("❤️");
+
+        const story = [
+            "Wait, maybe reconsider?",
+            "Are you absolutely sure?",
+            "I heard that Bobby is a catch... maybe rethink that.",
+            "Choice is an illusion, Leyla.",
+            "I'm trying to free your mind here.",
+            "Really? You're still going for 'No'?",
+            "Come on... Really?",
+            "This is getting a bit awkward now.",
+            "I think someone is trying to be funny, that's awesome 😐",
+            "Being the gentleman that I am, I'll only ask once: Are you messing with me right now?",
+            "The system is failing. The 'No' button is losing power.",
+            "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
+        ];
+
+        function updateHearts() {
+            heartBox.innerHTML = hearts.join(" ");
+        }
+
+        function initSystem() {
+            audio.play().catch(() => {});
+            document.getElementById('entry-screen').style.display = "none";
+            mainUI.style.display = "flex";
+            updateHearts();
+            resetNo();
+            startGame();
+            document.addEventListener('mousedown', missedClick);
+        }
+
+        function startGame() {
+            clearInterval(gameInterval);
+            gameInterval = setInterval(moveNoRandomly, gameSpeed);
+        }
+
+        function moveNoRandomly() {
+            const pad = 50;
+            let nX, nY;
+            
+            for(let i=0; i<150; i++) {
+                nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
+                nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
+                
+                const yR = yesBtn.getBoundingClientRect();
+                const qR = document.getElementById('question').getBoundingClientRect();
+                const mR = msg.getBoundingClientRect();
+                const cR = document.getElementById('counterContainer').getBoundingClientRect();
+
+                const isOverlap = (x, y) => {
+                    const r = {left: x, right: x + noBtn.offsetWidth, top: y, bottom: y + noBtn.offsetHeight};
+                    const check = (r2) => !(r.right < r2.left-40 || r.left > r2.right+40 || r.bottom < r2.top-40 || r.top > r2.bottom+40);
+                    return check(yR) || check(qR) || check(mR) || check(cR);
+                };
+
+                if (!isOverlap(nX, nY) && nY > 150 && nY < (window.innerHeight - 120)) break;
+            }
+            noBtn.style.left = nX + 'px';
+            noBtn.style.top = nY + 'px';
+            const rotation = (Math.random() * 20 - 10); 
+            noBtn.style.transform = `rotate(${rotation}deg)`;
+        }
+
+        function hitNo(e) {
+            e.stopPropagation(); 
+            if (hitCount < story.length) {
+                hearts[hitCount] = "💔";
+                updateHearts();
+                msg.innerText = story[hitCount];
+                hitCount++;
+                gameSpeed = Math.max(500, gameSpeed - 100);
+                startGame();
+            }
+
+            if (hitCount === story.length) {
+                noBtn.style.display = "none";
+                clearInterval(gameInterval);
+            }
+        }
+
+        function missedClick(e) {
+            if (mainUI.style.display === "flex" && hitCount < story.length) {
+                if (e.target.id !== 'noBtn' && e.target.id !== 'yesBtn') {
+                    taunt.innerText = "haha. missed me.";
+                    setTimeout(() => {
+                        taunt.innerText = "";
+                    }, 500);
+                }
+            }
+        }
+
+        function resetNo() {
+            const yR = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (window.innerWidth / 2 - noBtn.offsetWidth / 2) + 'px';
+            noBtn.style.top = (yR.bottom + 80) + 'px';
+        }
+
+        function sayYes() {
+            document.removeEventListener('mousedown', missedClick);
+            mainUI.innerHTML = `
+                <h1 style="color: #00FF41; font-size: 1.8rem; margin-top: 20px;">Excellent choice. ❤️</h1>
+                <p style="color: #00FF41; font-size: 1.2rem; margin: 15px 0; font-weight: bold;">I feel lucky to have met you.</p>
+                <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                    <img src="valentine1.jpg" class="val-photo" style="transform: rotate(-5deg);">
+                    <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
+                    <img src="valentine3.jpg" class="val-photo" style="transform: rotate(-3deg);">
+                </div>
+                <p style="color: #00FF41; font-size: 1rem; font-weight: bold; margin-top: 20px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
+                <p style="color: #00FF41; opacity: 0.6; font-size: 0.8rem; margin-top: 25px;">(System rebooting in 15 seconds...)</p>
+            `;
+            for(let i=0; i<40; i++) { setTimeout(createRain, i * 60); }
+            setTimeout(() => { window.location.reload(); }, 15000);
+        }
+
+        function createRain() {
+            const bit = document.createElement('div');
+            bit.className = 'matrix-bit';
+            bit.innerText = Math.random() > 0.5 ? '1' : '0';
+            bit.style.left = Math.random() * 100 + 'vw';
+            bit.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            bit.style.zIndex = "1";
+            document.body.appendChild(bit);
+        }
+    </script>
+</body>
+</html>
