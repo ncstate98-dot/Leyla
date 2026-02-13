@@ -5,73 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Matrix Valentine System</title>
     <style>
-        * {
-            -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
-            -webkit-tap-highlight-color: transparent; box-sizing: border-box;
-        }
-
-        body {
-            background-color: #0b0b0b; color: #00FF41; font-family: 'Courier New', monospace;
-            text-align: center; margin: 0; padding: 0; overflow: hidden;
-            height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center;
-        }
-
-        /* MENU SCREEN */
-        #entry-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 99999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-        }
-        .menu-btn {
-            background: #000; border: 2px solid #00FF41; color: #00FF41;
-            padding: 15px 30px; font-size: 1.1rem; cursor: pointer;
-            box-shadow: 0 0 10px #00FF41; margin: 10px; width: 260px;
-            font-family: 'Courier New', monospace; font-weight: bold;
-        }
+        /* CSS stays the same as previous version to maintain UI consistency */
+        * { -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        body { background-color: #0b0b0b; color: #00FF41; font-family: 'Courier New', monospace; text-align: center; margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; display: flex; justify-content: center; align-items: center; }
+        #entry-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .menu-btn { background: #000; border: 2px solid #00FF41; color: #00FF41; padding: 15px 30px; font-size: 1.1rem; cursor: pointer; box-shadow: 0 0 10px #00FF41; margin: 10px; width: 260px; font-family: 'Courier New', monospace; font-weight: bold; }
         .toggle-container { margin-bottom: 30px; display: flex; align-items: center; gap: 10px; }
         .switch { position: relative; display: inline-block; width: 50px; height: 24px; }
         .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #111; border: 1px solid #00FF41; transition: .4s;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px;
-            background-color: #00FF41; transition: .4s;
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #111; border: 1px solid #00FF41; transition: .4s; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px; background-color: #00FF41; transition: .4s; }
         input:checked + .slider:before { transform: translateX(26px); }
-
-        /* GAME UI */
-        #main-ui {
-            width: 100%; height: 100vh; display: none;
-            flex-direction: column; align-items: center;
-            padding-top: 5px; position: relative; z-index: 5;
-        }
+        #main-ui { width: 100%; height: 100vh; display: none; flex-direction: column; align-items: center; padding-top: 5px; position: relative; z-index: 5; }
         .tracker-label { font-size: 0.55rem; opacity: 0.7; margin: 2px 0; letter-spacing: 1px; }
-        #heart-container, #miss-container {
-            display: flex; gap: 1px; font-size: 0.75rem; 
-            justify-content: center; width: 100%; white-space: nowrap;
-        }
-
+        #heart-container, #miss-container { display: flex; gap: 1px; font-size: 0.75rem; justify-content: center; width: 100%; white-space: nowrap; }
         #question { font-size: 1.1rem; margin: 10px 0; }
-        #yesBtn {
-            background-color: #28a745; color: white; padding: 12px 30px;
-            font-size: 1.1rem; border: none; border-radius: 8px; font-weight: bold;
-            z-index: 50; cursor: pointer;
-        }
-        #noBtn {
-            background-color: #dc3545; color: white; padding: 10px 22px;
-            font-size: 1rem; border: none; border-radius: 8px; font-weight: bold;
-            position: absolute; z-index: 60;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
+        #yesBtn { background-color: #28a745; color: white; padding: 12px 30px; font-size: 1.1rem; border: none; border-radius: 8px; font-weight: bold; z-index: 50; cursor: pointer; }
+        #noBtn { background-color: #dc3545; color: white; padding: 10px 22px; font-size: 1rem; border: none; border-radius: 8px; font-weight: bold; position: absolute; z-index: 60; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         #taunt { margin-top: 25px; height: 18px; font-size: 0.8rem; color: #ff4d4d; }
         #message { margin-top: 5px; font-size: 0.95rem; font-weight: bold; min-height: 70px; padding: 0 20px; }
-        
-        #counterContainer {
-            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%);
-            padding: 8px 15px; border: 1px solid #00FF41; background: rgba(0,0,0,0.9);
-        }
+        #counterContainer { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); padding: 8px 15px; border: 1px solid #00FF41; background: rgba(0,0,0,0.9); }
         .val-photo { width: 100px; border: 2px solid #00FF41; border-radius: 4px; margin: 5px; }
         .matrix-bit { position: fixed; top: -20px; color: #00FF41; animation: rain linear infinite; pointer-events: none; }
         @keyframes rain { 0% { transform: translateY(-100%); } 100% { transform: translateY(100vh); } }
@@ -129,21 +82,16 @@
         let hitCount = 0, missCount = 0, totalAnomalies = 0;
         let gameInterval, isGameOver = false, currentMode = 'game';
         let hitHearts = Array(12).fill("❤️"), missHearts = Array(12).fill("🔹");
+        
+        // SPEED CONTROL
+        let currentSpeed = 1600;
 
-        // RESTORED ORIGINAL STORY MESSAGES
         const story = [
-            "Wait, maybe reconsider?", 
-            "Are you absolutely sure?", 
-            "I heard that Bobby is a catch... maybe rethink that.", 
-            "Choice is an illusion, Leyla.", 
-            "I'm trying to free your mind here.", 
-            "Really? You're still going for 'No'?",
-            "Come on... Really?", 
-            "This is getting a bit awkward now.", 
-            "I think someone is trying to be funny, that's awesome 😐",
+            "Wait, maybe reconsider?", "Are you absolutely sure?", "I heard that Bobby is a catch... maybe rethink that.", 
+            "Choice is an illusion, Leyla.", "I'm trying to free your mind here.", "Really? You're still going for 'No'?",
+            "Come on... Really?", "This is getting a bit awkward now.", "I think someone is trying to be funny, that's awesome 😐",
             "Being the gentleman that I am, I'll only ask once: Are you messing with me right now?", 
-            "The system is failing. The 'No' button is losing power.",
-            "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
+            "The system is failing. The 'No' button is losing power.", "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
         function initSystem(mode) {
@@ -151,7 +99,6 @@
             if (document.getElementById('musicToggle').checked) audio.play().catch(() => {});
             document.getElementById('entry-screen').style.display = "none";
             mainUI.style.display = "flex";
-            
             if (mode === 'card') {
                 document.getElementById('hud-area').style.visibility = "hidden";
                 msg.innerText = "Classic Protocol Engaged.";
@@ -171,14 +118,18 @@
 
         function startGame() {
             clearInterval(gameInterval);
-            gameInterval = setInterval(moveNoRandomly, 1600);
+            // Difficulty spikes for the last 3 hearts
+            if (hitCount >= 9) currentSpeed = 800;  // Heart 10
+            if (hitCount >= 10) currentSpeed = 600; // Heart 11
+            if (hitCount >= 11) currentSpeed = 400; // Final Heart - Insane Mode
+            
+            gameInterval = setInterval(moveNoRandomly, currentSpeed);
         }
 
         function moveNoRandomly() {
             if (isGameOver) return;
-            const pad = 45; // Increased buffer
+            const pad = 45;
             let nX, nY;
-            
             const msgRect = msg.getBoundingClientRect();
             const counterRect = counterBox.getBoundingClientRect();
             const yesRect = yesBtn.getBoundingClientRect();
@@ -187,22 +138,9 @@
             for(let i=0; i<300; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                
-                const noRect = {
-                    left: nX - 25,
-                    right: nX + noBtn.offsetWidth + 25,
-                    top: nY - 25,
-                    bottom: nY + noBtn.offsetHeight + 25
-                };
-
+                const noRect = { left: nX-25, right: nX+noBtn.offsetWidth+25, top: nY-25, bottom: nY+noBtn.offsetHeight+25 };
                 const overlaps = (r1, r2) => !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
-
-                const isBlocked = overlaps(noRect, msgRect) || 
-                                overlaps(noRect, counterRect) || 
-                                overlaps(noRect, yesRect) ||
-                                overlaps(noRect, questionRect);
-
-                if (!isBlocked && nY > 180 && nY < (window.innerHeight - 100)) break;
+                if (!overlaps(noRect, msgRect) && !overlaps(noRect, counterRect) && !overlaps(noRect, yesRect) && !overlaps(noRect, questionRect) && nY > 180 && nY < (window.innerHeight - 100)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
@@ -213,15 +151,14 @@
             e.stopPropagation();
             if (isGameOver) return;
             totalAnomalies++;
-            
             if (hitCount < story.length) {
                 if (currentMode === 'game') hitHearts[hitCount] = "💔";
                 msg.innerText = story[hitCount];
                 hitCount++;
                 updateTrackers();
+                if (currentMode === 'game') startGame(); // Restart interval with new speed
                 moveNoRandomly();
             }
-
             if (hitCount === story.length) {
                 noBtn.style.display = "none";
                 isGameOver = true;
@@ -237,12 +174,7 @@
                     updateTrackers();
                     taunt.innerText = "haha. missed me.";
                     setTimeout(() => { taunt.innerText = ""; }, 500);
-                    if(missCount >= 12) { 
-                        isGameOver = true; 
-                        noBtn.style.display="none"; 
-                        msg.style.color = "#ff4d4d";
-                        msg.innerText="FATAL ERROR: Access Denied. Hit Yes."; 
-                    }
+                    if(missCount >= 12) { isGameOver = true; noBtn.style.display="none"; msg.style.color = "#ff4d4d"; msg.innerText="FATAL ERROR: Access Denied. Hit Yes."; }
                 }
             }
         }
