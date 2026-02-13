@@ -130,12 +130,20 @@
         let gameInterval, isGameOver = false, currentMode = 'game';
         let hitHearts = Array(12).fill("❤️"), missHearts = Array(12).fill("🔹");
 
+        // RESTORED ORIGINAL STORY MESSAGES
         const story = [
-            "Wait, maybe reconsider?", "Are you absolutely sure?", "I heard that Bobby is a catch...",
-            "Choice is an illusion, Leyla.", "I'm trying to free your mind here.", "Still going for 'No'?",
-            "Come on... Really?", "This is getting awkward.", "Someone thinks they're funny 😐",
-            "Are you messing with me right now?", "System failing. No button losing power.",
-            "Take the red pill. Only Yes remains."
+            "Wait, maybe reconsider?", 
+            "Are you absolutely sure?", 
+            "I heard that Bobby is a catch... maybe rethink that.", 
+            "Choice is an illusion, Leyla.", 
+            "I'm trying to free your mind here.", 
+            "Really? You're still going for 'No'?",
+            "Come on... Really?", 
+            "This is getting a bit awkward now.", 
+            "I think someone is trying to be funny, that's awesome 😐",
+            "Being the gentleman that I am, I'll only ask once: Are you messing with me right now?", 
+            "The system is failing. The 'No' button is losing power.",
+            "Take the red pill, Leyla. There's nothing left but to hit the Yes button."
         ];
 
         function initSystem(mode) {
@@ -168,7 +176,7 @@
 
         function moveNoRandomly() {
             if (isGameOver) return;
-            const pad = 35;
+            const pad = 45; // Increased buffer
             let nX, nY;
             
             const msgRect = msg.getBoundingClientRect();
@@ -176,15 +184,15 @@
             const yesRect = yesBtn.getBoundingClientRect();
             const questionRect = document.getElementById('question').getBoundingClientRect();
 
-            for(let i=0; i<200; i++) {
+            for(let i=0; i<300; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
                 
                 const noRect = {
-                    left: nX - 15,
-                    right: nX + noBtn.offsetWidth + 15,
-                    top: nY - 15,
-                    bottom: nY + noBtn.offsetHeight + 15
+                    left: nX - 25,
+                    right: nX + noBtn.offsetWidth + 25,
+                    top: nY - 25,
+                    bottom: nY + noBtn.offsetHeight + 25
                 };
 
                 const overlaps = (r1, r2) => !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
@@ -211,8 +219,6 @@
                 msg.innerText = story[hitCount];
                 hitCount++;
                 updateTrackers();
-                
-                // Jump away on hit for BOTH modes
                 moveNoRandomly();
             }
 
