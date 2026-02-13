@@ -49,7 +49,7 @@
         }
         .tracker-label { font-size: 0.55rem; opacity: 0.7; margin: 2px 0; letter-spacing: 1px; }
         #heart-container, #miss-container {
-            display: flex; gap: 1px; font-size: 0.75rem; /* Shrink to fit one row */
+            display: flex; gap: 1px; font-size: 0.75rem; 
             justify-content: center; width: 100%; white-space: nowrap;
         }
 
@@ -123,6 +123,7 @@
         const missBox = document.getElementById('miss-container');
         const anomalyVal = document.getElementById('anomaly-value');
         const mainUI = document.getElementById('main-ui');
+        const counterBox = document.getElementById('counterContainer');
         const audio = document.getElementById('bgMusic');
 
         let hitCount = 0, missCount = 0, totalAnomalies = 0;
@@ -144,7 +145,7 @@
             mainUI.style.display = "flex";
             
             if (mode === 'card') {
-                document.getElementById('hud-area').style.visibility = "hidden"; // Hide trackers for card mode
+                document.getElementById('hud-area').style.visibility = "hidden";
                 msg.innerText = "Classic Protocol Engaged.";
             } else {
                 updateTrackers();
@@ -162,17 +163,38 @@
 
         function startGame() {
             clearInterval(gameInterval);
-            gameInterval = setInterval(moveNoRandomly, 1600); // Standard speed
+            gameInterval = setInterval(moveNoRandomly, 1600);
         }
 
         function moveNoRandomly() {
             if (isGameOver) return;
-            const pad = 30;
+            const pad = 35;
             let nX, nY;
-            for(let i=0; i<100; i++) {
+            
+            const msgRect = msg.getBoundingClientRect();
+            const counterRect = counterBox.getBoundingClientRect();
+            const yesRect = yesBtn.getBoundingClientRect();
+            const questionRect = document.getElementById('question').getBoundingClientRect();
+
+            for(let i=0; i<200; i++) {
                 nX = Math.random() * (window.innerWidth - noBtn.offsetWidth - pad);
                 nY = Math.random() * (window.innerHeight - noBtn.offsetHeight - pad);
-                if (nY > 160 && nY < (window.innerHeight - 100)) break;
+                
+                const noRect = {
+                    left: nX - 15,
+                    right: nX + noBtn.offsetWidth + 15,
+                    top: nY - 15,
+                    bottom: nY + noBtn.offsetHeight + 15
+                };
+
+                const overlaps = (r1, r2) => !(r1.right < r2.left || r1.left > r2.right || r1.bottom < r2.top || r1.top > r2.bottom);
+
+                const isBlocked = overlaps(noRect, msgRect) || 
+                                overlaps(noRect, counterRect) || 
+                                overlaps(noRect, yesRect) ||
+                                overlaps(noRect, questionRect);
+
+                if (!isBlocked && nY > 180 && nY < (window.innerHeight - 100)) break;
             }
             noBtn.style.left = nX + 'px';
             noBtn.style.top = nY + 'px';
@@ -181,6 +203,7 @@
 
         function handleNo(e) {
             e.stopPropagation();
+            if (isGameOver) return;
             totalAnomalies++;
             
             if (hitCount < story.length) {
@@ -189,9 +212,8 @@
                 hitCount++;
                 updateTrackers();
                 
-                if (currentMode === 'card') {
-                    moveNoRandomly(); // In card mode, it only moves when she hits it
-                }
+                // Jump away on hit for BOTH modes
+                moveNoRandomly();
             }
 
             if (hitCount === story.length) {
@@ -209,7 +231,12 @@
                     updateTrackers();
                     taunt.innerText = "haha. missed me.";
                     setTimeout(() => { taunt.innerText = ""; }, 500);
-                    if(missCount >= 12) { isGameOver = true; noBtn.style.display="none"; msg.innerText="FATAL ERROR: Access Denied."; }
+                    if(missCount >= 12) { 
+                        isGameOver = true; 
+                        noBtn.style.display="none"; 
+                        msg.style.color = "#ff4d4d";
+                        msg.innerText="FATAL ERROR: Access Denied. Hit Yes."; 
+                    }
                 }
             }
         }
@@ -231,7 +258,7 @@
                     <img src="valentine2.jpg" class="val-photo" style="transform: rotate(2deg);">
                     <img src="valentine3.jpg" class="val-photo" style="transform: rotate(3deg);">
                 </div>
-                <p style="color: #00FF41; font-size: 0.8rem; margin-top: 15px;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
+                <p style="color: #00FF41; font-size: 0.8rem; margin-top: 15px; max-width: 90%;">just like in the matrix, it's almost like you didn't have a choice, haha 😂</p>
                 <p style="color: #00FF41; opacity: 0.6; font-size: 0.7rem; margin-top: 15px;">(System rebooting in 15 seconds...)</p>
             `;
             for(let i=0; i<40; i++) setTimeout(createRain, i * 60);
